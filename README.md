@@ -134,6 +134,7 @@ python scripts/werr_algebraic_sieve.py
   ORCID: [0000-0001-9490-6425](https://orcid.org/0000-0001-9490-6425) &bull; Mersin University
 * **Dağhan Dağlı** — Computational Benchmarking & Algorithmic Analysis  
   ORCID: [0009-0003-2492-8313](https://orcid.org/0009-0003-2492-8313) &bull; Toros Science College
+* **Bekirhan Dağlı** — Managing Partner, ITouch Systems (Computing Clusters & Infrastructure Contributor)
 
 ---
 
@@ -148,6 +149,6 @@ If you use this dataset, algorithms, or isogeny models in academic work, please 
   year         = {2026},
   publisher    = {GitHub},
   howpublished = {\url{https://github.com/pCwOrM/werr-elliptic-sieve}},
-  note         = {Certified on NSF ICARM Elliptic Curve Rank Leaderboard (Grant DMS-2425401), contributor: user/114}
+  note         = {Certified on NSF ICARM Elliptic Curve Rank Leaderboard (Grant DMS-2425401), contributor: user/114. Computing infrastructure contributed by Bekirhan Da{\u{g}}l{\i} (ITouch Systems).}
 }
 ```
