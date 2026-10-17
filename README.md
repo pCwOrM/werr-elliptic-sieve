@@ -1,9 +1,6 @@
 # Werr Multi-Layer Algebraic Sieve & Vélu Isogeny Engine: High-Rank Elliptic Curve Records
 
-[![NSF ICARM Leaderboard](https://img.shields.io/badge/NSF%20ICARM-Certified%20Leaderboard-blue)](https://elliptic-rank.icarm.cloud/user/114)
-[![Curves Accepted](https://img.shields.io/badge/Accepted%20Curves-230%20(100%25%20Verified)-success)](https://elliptic-rank.icarm.cloud/user/114)
-# Werr Multi-Layer Algebraic Sieve & Vélu Isogeny Engine: High-Rank Elliptic Curve Records
-
+[![arXiv](https://img.shields.io/badge/arXiv-cs.LO%20%7C%20math.NT-b31b1b.svg)](arxiv_package/Werr_Elliptic_Sieve_ICARM_Preprint.pdf)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23436282.svg)](https://doi.org/10.5281/zenodo.23436282)
 [![NSF ICARM Leaderboard](https://img.shields.io/badge/NSF%20ICARM-Certified%20Leaderboard-blue)](https://elliptic-rank.icarm.cloud/user/114)
 [![Curves Accepted](https://img.shields.io/badge/Accepted%20Curves-230%20(100%25%20Verified)-success)](https://elliptic-rank.icarm.cloud/user/114)
@@ -107,6 +104,8 @@ GitHub Repository: [pCwOrM/werr-elliptic-sieve](https://github.com/pCwOrM/werr-e
 
 * **CERN Zenodo Concept DOI (All Versions):** [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23436282.svg)](https://doi.org/10.5281/zenodo.23436282) &bull; [10.5281/zenodo.23436282](https://doi.org/10.5281/zenodo.23436282)
 * **CERN Zenodo Release v1.0 DOI:** [10.5281/zenodo.23436283](https://doi.org/10.5281/zenodo.23436283)
+* **arXiv Preprint Package:** [`arxiv_package/Werr_Elliptic_Sieve_ICARM_Preprint.pdf`](arxiv_package/Werr_Elliptic_Sieve_ICARM_Preprint.pdf) &bull; Bundle: [`arxiv_package/arxiv_bundle.tar.gz`](arxiv_package/arxiv_bundle.tar.gz)
+* **arXiv Submission Guide:** [`ARXIV_YUKLEME_REHBERI.md`](ARXIV_YUKLEME_REHBERI.md)
 * **Camera-Ready Research Monograph:** [`Werr_Elliptic_Sieve_ICARM_Leaderboard_Monograph.pdf`](Werr_Elliptic_Sieve_ICARM_Leaderboard_Monograph.pdf)
 
 If you use this dataset, algorithms, or isogeny models in academic work, please cite:
