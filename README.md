@@ -6,16 +6,16 @@
 [![#1 Records](https://img.shields.io/badge/%231%20Gold%20Records-30-gold)](https://elliptic-rank.icarm.cloud/user/114)
 [![Top-3 Podiums](https://img.shields.io/badge/Top--3%20Podiums-80-orange)](https://elliptic-rank.icarm.cloud/user/114)
 [![Top-10 Placements](https://img.shields.io/badge/Top--10%20Placements-418-blueviolet)](https://elliptic-rank.icarm.cloud/user/114)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: CC-BY-4.0](https://img.shields.io/badge/License-CC--BY--4.0-yellow.svg)](LICENSE)
 [![ORCID: Volkan Dağlı](https://img.shields.io/badge/ORCID-0009--0000--1587--8703-green)](https://orcid.org/0009-0000-1587-8703)
-[![ORCID: Dr. Zerrin Dağlı](https://img.shields.io/badge/ORCID-0000--0001--9490--6425-green)](https://orcid.org/0000-0001-9490-6425)
+[![ORCID: Zerrin Dağlı](https://img.shields.io/badge/ORCID-0000--0001--9490--6425-green)](https://orcid.org/0000-0001-9490-6425)
 [![ORCID: Dağhan Dağlı](https://img.shields.io/badge/ORCID-0009--0003--2492--8313-green)](https://orcid.org/0009-0003-2492-8313)
 
 ---
 
 ## 🏛️ Executive Summary & Official Public Certification
 
-This repository houses the computational number theory research, algorithms, datasets, and reproduction tools developed by **ITouch Systems & Dağlı Family Lab** for high-rank elliptic curves over $\mathbb{Q}$.
+This repository and dataset house the computational number theory research, algorithms, datasets, and reproduction tools developed by **ITouch Systems & Dağlı Family Lab** for high-rank elliptic curves over $\mathbb{Q}$.
 
 Through a harmonized combination of:
 1. **The 4-Stage Werr Multi-Layer Algebraic Sieve** (coupling algebraic root invariants $\gcd(a_4, a_6, \Delta, c_4, c_6)$, cubic divisor peeling $\Delta = d_0 \cdot s^3$, and parallel ECM/MPQS integer factorization), and
@@ -50,7 +50,10 @@ In mathematics and open science, true progress rests on transparency, rigorous v
 2. **NSF ICARM & Platform Maintainers:**  
    We gratefully acknowledge the **NSF Institute for Computer-Aided Reasoning in Mathematics (ICARM)**, supported by **U.S. National Science Foundation Grant DMS-2425401**, and thank **David Renshaw** (`@dwrensha`), **Seewoo Lee** (`@seewoo5`), and the ICARM team for maintaining the [elliptic-rank.icarm.cloud](https://elliptic-rank.icarm.cloud/) platform and its in-worker PARI/GP 2.17.2 WASM verification pipeline.
 
-3. **Our Algorithmic Contribution:**  
+3. **Computing Infrastructure:**  
+   Dedicated bare-metal verification clusters and computing resources were provided by **Bekirhan Dağlı** (Managing Partner) and **ITouch Systems Research & Development**.
+
+4. **Our Algorithmic Contribution:**  
    Our specific scientific contribution was two-fold:
    * **Closing the $\log N$ Gap:** Resolving all remaining composite discriminant factorizations (up to 70–105 digits) using our 4-stage algebraic sieve so that conductors $\log N$ could be certified machine-verifiably for all 230 curves.
    * **Isogeny Frontier Exploration:** Uncovering strictly smaller minimal Weierstrass models (lower $|\Delta|$, smaller Faltings and naive heights) along rational $2$- and $3$-isogeny graphs without altering the Mordell–Weil rank or conductor.
@@ -77,64 +80,22 @@ In mathematics and open science, true progress rests on transparency, rigorous v
 
 ---
 
-## 🔬 Mathematical Methodology
-
-### 1. The 4-Stage Werr Multi-Layer Algebraic Sieve
-Given a global minimal Weierstrass equation:
-$$E: y^2 + a_1 xy + a_3 y = x^3 + a_2 x^2 + a_4 x + a_6, \quad a_i \in \mathbb{Z}$$
-with modular invariants $c_4, c_6$ and minimal discriminant $\Delta = (c_4^3 - c_6^2) / 1728$, computing the conductor $N$ requires factoring $\Delta$:
-$$N = \prod_{p \mid \Delta} p^{f_p(E)}$$
-where $f_p(E) \in \{1, 2\}$ for $p > 3$ by the Ogg–Sain–Tate formula. For $70$ to $105$ digit discriminants, general-purpose integer factorization is computationally intractable without algebraic structure.
-
-Our **4-Stage Werr Sieve** resolves this via:
-* **Stage 1 (Algebraic Root Invariant Divisor):** Extracting common divisor kernels:
-  $$g_0 = \gcd(c_4, c_6, \Delta, a_4, a_6)$$
-  which immediately pulls out massive smooth factors shared between the Weierstrass division polynomials.
-* **Stage 2 (Cubic Divisor Peeling):** Because $(c_4^3 - 1728\Delta) = c_6^2$, any large prime power dividing $\Delta$ cubically can be isolated via:
-  $$\Delta = d_0 \cdot s^3$$
-* **Stage 3 (Parallel Pollard $p-1$ & Suyama-Montgomery ECM):** Multi-core worker cores sweep algebraic cofactor bounds $B_1 = 10^5, B_2 = 5 \times 10^6$.
-* **Stage 4 (PARI/GP 2.17.2 MPQS / ECM Closure):** Remaining cofactors are verified as certified primes using APR-CL / Miller-Rabin tests.
-
-### 2. Vélu $2$- and $3$-Isogeny Transport
-For a curve $E$ with rational torsion subgroup $G \subset E(\mathbb{Q})[\ell]$ with $\ell \in \{2, 3\}$, Vélu's formulas define an explicit isogeny $\phi: E \to E' = E/G$. Under isogeny:
-$$\text{Rank}(E'(\mathbb{Q})) = \text{Rank}(E(\mathbb{Q})), \qquad N(E') = N(E)$$
-However, the minimal discriminant $|\Delta'|$ and Faltings height $h_F(E')$ satisfy:
-$$|\Delta'| = \ell^{\pm 12 k} |\Delta|, \qquad h_F(E') = h_F(E) + \frac{1}{2} \log \deg(\phi) - \dots$$
-By mapping the Mordell–Weil generators $P_1, \dots, P_r \in E(\mathbb{Q})$ to $P_i' = \phi(P_i) \in E'(\mathbb{Q})$ and re-reducing to the Cremona minimal model, we systematically discovered curves in the same isogeny class that significantly reduced both $|\Delta|$ and $h_F$, claiming new `#1` records across the board.
-
----
-
-## 💻 Reproducibility & Verification
-
-To verify all 230 accepted curves, reproduce the audit metrics, or run the Werr algebraic sieve:
-
-```bash
-# Clone the repository
-git clone https://github.com/pCwOrM/werr-elliptic-sieve.git
-cd werr-elliptic-sieve
-
-# Run the complete live leaderboard placement audit
-python scripts/verify_leaderboard_audit.py
-
-# Run the standalone Werr algebraic sieve test
-python scripts/werr_algebraic_sieve.py
-```
-
----
-
-## 👥 Authors & Affiliations
-
-**ITouch Systems & Dağlı Family Lab**  
-* Mersin & Eskişehir, Turkey  
-* GitHub: [@pCwOrM](https://github.com/pCwOrM)
+## 👥 Canonical Authors & Institutional Affiliations
 
 * **Volkan Dağlı** — Lead Researcher & Systems Architect  
+  *Anadolu University, Eskişehir, Türkiye & ITouch Systems, Adana, Türkiye*  
   ORCID: [0009-0000-1587-8703](https://orcid.org/0009-0000-1587-8703) &bull; Email: `pcworm@pcworm.net`
-* **Dr. Zerrin Dağlı** — Mathematical Modeling & Data Verification  
-  ORCID: [0000-0001-9490-6425](https://orcid.org/0000-0001-9490-6425) &bull; Mersin University
+* **Zerrin Dağlı** — Mathematical Modeling & Data Verification  
+  *Mersin University, Mersin, Türkiye & Yusuf Kalkavan Anadolu Lisesi, Mersin, Türkiye*  
+  ORCID: [0000-0001-9490-6425](https://orcid.org/0000-0001-9490-6425)
 * **Dağhan Dağlı** — Computational Benchmarking & Algorithmic Analysis  
-  ORCID: [0009-0003-2492-8313](https://orcid.org/0009-0003-2492-8313) &bull; Toros Science College
-* **Bekirhan Dağlı** — Managing Partner, ITouch Systems (Computing Clusters & Infrastructure Contributor)
+  *Toros Science High School, MEV (Toros University), Mersin, Türkiye*  
+  ORCID: [0009-0003-2492-8313](https://orcid.org/0009-0003-2492-8313)
+* **Bekirhan Dağlı** — Managing Partner, ITouch Systems, Adana, Türkiye  
+  *(Computing Clusters & Infrastructure Contributor)*
+
+**Host Institutions:** ITouch Systems Research Labs & Dağlı Family Research Laboratory  
+GitHub Repository: [pCwOrM/werr-elliptic-sieve](https://github.com/pCwOrM/werr-elliptic-sieve)
 
 ---
 
@@ -147,7 +108,7 @@ If you use this dataset, algorithms, or isogeny models in academic work, please 
   author       = {Da{\u{g}}l{\i}, Volkan and Da{\u{g}}l{\i}, Zerrin and Da{\u{g}}l{\i}, Da{\u{g}}han},
   title        = {{Werr Multi-Layer Algebraic Sieve & V{\'e}lu Isogeny Engine: 100% Conductor Certification and High-Rank Elliptic Curve Records}},
   year         = {2026},
-  publisher    = {GitHub},
+  publisher    = {GitHub & CERN Zenodo},
   howpublished = {\url{https://github.com/pCwOrM/werr-elliptic-sieve}},
   note         = {Certified on NSF ICARM Elliptic Curve Rank Leaderboard (Grant DMS-2425401), contributor: user/114. Computing infrastructure contributed by Bekirhan Da{\u{g}}l{\i} (ITouch Systems).}
 }
