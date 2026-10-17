@@ -94,7 +94,6 @@ In mathematics and open science, true progress rests on transparency, rigorous v
 * **Bekirhan Dağlı** — Managing Partner, ITouch Systems, Adana, Türkiye  
   *(Computing Clusters & Infrastructure Contributor)*
 
-**Host Institution:** ITouch Systems Research Labs  
 GitHub Repository: [pCwOrM/werr-elliptic-sieve](https://github.com/pCwOrM/werr-elliptic-sieve)
 
 ---
