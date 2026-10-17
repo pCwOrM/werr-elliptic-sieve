@@ -1,5 +1,6 @@
 # Werr Multi-Layer Algebraic Sieve & Vélu Isogeny Engine: High-Rank Elliptic Curve Records
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23436282.svg)](https://doi.org/10.5281/zenodo.23436282)
 [![NSF ICARM Leaderboard](https://img.shields.io/badge/NSF%20ICARM-Certified%20Leaderboard-blue)](https://elliptic-rank.icarm.cloud/user/114)
 [![Curves Accepted](https://img.shields.io/badge/Accepted%20Curves-230%20(100%25%20Verified)-success)](https://elliptic-rank.icarm.cloud/user/114)
 [![Conductor Certification](https://img.shields.io/badge/Conductor%20log%20N-100%25%20Factored%20(230%2F230)-brightgreen)](https://elliptic-rank.icarm.cloud/user/114)
@@ -98,17 +99,24 @@ GitHub Repository: [pCwOrM/werr-elliptic-sieve](https://github.com/pCwOrM/werr-e
 
 ---
 
-## 📜 Citation
+## 📜 Citation & Permanent Record
+
+* **CERN Zenodo Concept DOI (All Versions):** [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23436282.svg)](https://doi.org/10.5281/zenodo.23436282) &bull; [10.5281/zenodo.23436282](https://doi.org/10.5281/zenodo.23436282)
+* **CERN Zenodo Release v1.0 DOI:** [10.5281/zenodo.23436283](https://doi.org/10.5281/zenodo.23436283)
+* **Camera-Ready Research Monograph:** [`Werr_Elliptic_Sieve_ICARM_Leaderboard_Monograph.pdf`](Werr_Elliptic_Sieve_ICARM_Leaderboard_Monograph.pdf)
 
 If you use this dataset, algorithms, or isogeny models in academic work, please cite:
 
 ```bibtex
 @misc{dagli2026werr_elliptic_sieve,
   author       = {Da{\u{g}}l{\i}, Volkan and Da{\u{g}}l{\i}, Zerrin and Da{\u{g}}l{\i}, Da{\u{g}}han},
-  title        = {{Werr Multi-Layer Algebraic Sieve & V{\'e}lu Isogeny Engine: 100% Conductor Certification and High-Rank Elliptic Curve Records}},
+  title        = {{Werr Multi-Layer Algebraic Sieve & V{\'e}lu Isogeny Engine: 100% Conductor Certification (log N) and High-Rank Elliptic Curve Records on the NSF ICARM Leaderboard}},
   year         = {2026},
-  publisher    = {GitHub & CERN Zenodo},
-  howpublished = {\url{https://github.com/pCwOrM/werr-elliptic-sieve}},
+  month        = {oct},
+  publisher    = {CERN Zenodo},
+  doi          = {10.5281/zenodo.23436282},
+  url          = {https://doi.org/10.5281/zenodo.23436282},
+  howpublished = {\url{https://doi.org/10.5281/zenodo.23436282}},
   note         = {Certified on NSF ICARM Elliptic Curve Rank Leaderboard (Grant DMS-2425401), contributor: user/114. Computing infrastructure contributed by Bekirhan Da{\u{g}}l{\i} (ITouch Systems).}
 }
 ```
