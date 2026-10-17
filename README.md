@@ -86,7 +86,7 @@ In mathematics and open science, true progress rests on transparency, rigorous v
 
 * **Volkan Dağlı** — Lead Researcher & Systems Architect  
   *Anadolu University, Eskişehir, Türkiye & ITouch Systems, Adana, Türkiye*  
-  ORCID: [0009-0000-1587-8703](https://orcid.org/0009-0000-1587-8703) &bull; Email: `pcworm@pcworm.net`
+  ORCID: [0009-0000-1587-8703](https://orcid.org/0009-0000-1587-8703) &bull; Email: `ask@answerr.me`
 * **Zerrin Dağlı** — Mathematical Modeling & Data Verification  
   *Mersin University, Mersin, Türkiye & Yusuf Kalkavan Anadolu Lisesi, Mersin, Türkiye*  
   ORCID: [0000-0001-9490-6425](https://orcid.org/0000-0001-9490-6425)
