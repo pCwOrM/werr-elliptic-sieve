@@ -15,7 +15,7 @@
 
 ## 🏛️ Executive Summary & Official Public Certification
 
-This repository and dataset house the computational number theory research, algorithms, datasets, and reproduction tools developed by **ITouch Systems & Dağlı Family Lab** for high-rank elliptic curves over $\mathbb{Q}$.
+This repository and dataset house the computational number theory research, algorithms, datasets, and reproduction tools developed by **ITouch Systems** for high-rank elliptic curves over $\mathbb{Q}$.
 
 Through a harmonized combination of:
 1. **The 4-Stage Werr Multi-Layer Algebraic Sieve** (coupling algebraic root invariants $\gcd(a_4, a_6, \Delta, c_4, c_6)$, cubic divisor peeling $\Delta = d_0 \cdot s^3$, and parallel ECM/MPQS integer factorization), and
@@ -94,7 +94,7 @@ In mathematics and open science, true progress rests on transparency, rigorous v
 * **Bekirhan Dağlı** — Managing Partner, ITouch Systems, Adana, Türkiye  
   *(Computing Clusters & Infrastructure Contributor)*
 
-**Host Institutions:** ITouch Systems Research Labs & Dağlı Family Research Laboratory  
+**Host Institution:** ITouch Systems Research Labs  
 GitHub Repository: [pCwOrM/werr-elliptic-sieve](https://github.com/pCwOrM/werr-elliptic-sieve)
 
 ---
