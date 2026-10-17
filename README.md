@@ -8,7 +8,7 @@
 [![Top-10 Placements](https://img.shields.io/badge/Top--10%20Placements-418-blueviolet)](https://elliptic-rank.icarm.cloud/user/114)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![ORCID: Volkan Dağlı](https://img.shields.io/badge/ORCID-0009--0000--1587--8703-green)](https://orcid.org/0009-0000-1587-8703)
-[![ORCID: Zerrin Dağlı](https://img.shields.io/badge/ORCID-0000--0001--9490--6425-green)](https://orcid.org/0000-0001-9490-6425)
+[![ORCID: Dr. Zerrin Dağlı](https://img.shields.io/badge/ORCID-0000--0001--9490--6425-green)](https://orcid.org/0000-0001-9490-6425)
 [![ORCID: Dağhan Dağlı](https://img.shields.io/badge/ORCID-0009--0003--2492--8313-green)](https://orcid.org/0009-0003-2492-8313)
 
 ---
@@ -130,7 +130,7 @@ python scripts/werr_algebraic_sieve.py
 
 * **Volkan Dağlı** — Lead Researcher & Systems Architect  
   ORCID: [0009-0000-1587-8703](https://orcid.org/0009-0000-1587-8703) &bull; Email: `pcworm@pcworm.net`
-* **Zerrin Dağlı** — Mathematical Modeling & Data Verification  
+* **Dr. Zerrin Dağlı** — Mathematical Modeling & Data Verification  
   ORCID: [0000-0001-9490-6425](https://orcid.org/0000-0001-9490-6425) &bull; Mersin University
 * **Dağhan Dağlı** — Computational Benchmarking & Algorithmic Analysis  
   ORCID: [0009-0003-2492-8313](https://orcid.org/0009-0003-2492-8313) &bull; Toros Science College
