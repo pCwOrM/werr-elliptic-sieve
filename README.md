@@ -39,7 +39,7 @@ we submitted and had **`230` distinct curves** (`#4308` through `#4537`) verifie
 
 ---
 
-## 🤝 Foundational Principle: First Adab, Then Knowledge (*Önce Edep, Sonra İlim*)
+## 🤝 Mathematical Foundations, Scientific Lineage & Intellectual Attribution
 
 In mathematics and open science, true progress rests on transparency, rigorous verification, and generous intellectual honesty:
 
