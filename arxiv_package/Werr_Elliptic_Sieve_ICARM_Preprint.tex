@@ -5,14 +5,14 @@
 \usepackage{amsmath,amssymb,amsfonts,amsthm}
 \usepackage{booktabs,tabularx,longtable,array,graphicx}
 \usepackage{geometry}
-\geometry{margin=2.2cm}
+\geometry{margin=2.15cm}
 \usepackage{hyperref}
 \hypersetup{
     colorlinks=true,
     linkcolor=blue!70!black,
     citecolor=blue!70!black,
     urlcolor=blue!70!black,
-    pdftitle={Werr Multi-Layer Algebraic Sieve and Velu Isogeny Engine: 100\% Conductor Certification and High-Rank Elliptic Curve Records on the NSF ICARM Leaderboard},
+    pdftitle={Automated Reasoning and In-Worker Verification for High-Rank Elliptic Curves: The 4-Stage Werr Algebraic Sieve, Conductor Certification (log N), and Velu Isogeny Graph Transport on the NSF ICARM Leaderboard},
     pdfauthor={Volkan Dagli, Zerrin Dagli, Daghan Dagli}
 }
 \usepackage{microtype}
@@ -21,6 +21,7 @@
 \usepackage{url}
 \usepackage{enumitem}
 \setlist{topsep=3pt, itemsep=2pt, parsep=1pt}
+\emergencystretch=1.5em
 
 \theoremstyle{plain}
 \newtheorem{theorem}{Theorem}[section]
@@ -41,31 +42,31 @@
 \author{
     \textbf{Volkan Da\u{g}l\i}$^{1,2}$ \quad
     \textbf{Zerrin Da\u{g}l\i}$^{3,4}$ \quad
-    \textbf{Da\u{g}han Da\u{g}l\i}$^{5}$ \\[0.7em]
+    \textbf{Da\u{g}han Da\u{g}l\i}$^{5}$ \\[0.65em]
     \small $^{1}$Anadolu University, Eski\c{s}ehir, T\"{u}rkiye \\
     \small $^{2}$ITouch Systems Research \& Development, Adana, T\"{u}rkiye \\
     \small $^{3}$Mersin University, Mersin, T\"{u}rkiye \\
     \small $^{4}$Yusuf Kalkavan Anadolu Lisesi, Mersin, T\"{u}rkiye \\
-    \small $^{5}$Toros Science High School, MEV (Toros University), Mersin, T\"{u}rkiye \\[0.4em]
+    \small $^{5}$Toros Science High School, MEV (Toros University), Mersin, T\"{u}rkiye \\[0.35em]
     \small ORCID: \texttt{0009-0000-1587-8703} $\cdot$ \texttt{0000-0001-9490-6425} $\cdot$ \texttt{0009-0003-2492-8313} \\
     \small Correspondence: \texttt{ask@answerr.me}
 }
 
-\date{\vspace{-0.6em}\small October 2026\vspace{-0.6em}}
+\date{\vspace{-0.7em}\small October 2026\vspace{-0.7em}}
 
 \begin{document}
 
 \maketitle
 
 \begin{abstract}
-The computational verification of high-rank elliptic curves over $\mathbb{Q}$ has historically been bottlenecked by the difficulty of certifying global arithmetic invariants, most notably the arithmetic conductor $N$. In modern automated reasoning platforms such as the NSF Institute for Computer-Aided Reasoning in Mathematics (ICARM) Elliptic Curve Rank Leaderboard (maintained at Carnegie Mellon University under U.S.\ National Science Foundation Grant DMS-2425401), candidate curves are subjected to strict client-side and in-worker WebAssembly PARI/GP 2.17.2 kernel verification. While geometric non-singularity, rational point membership, torsion subgroup structures, and N\'{e}ron--Tate height regulator determinants are verified efficiently, computing the global conductor via Tate's algorithm (\texttt{ellglobalred}) requires the complete prime factorization of the minimal discriminant $\Delta$. For state-of-the-art curves specializing high-rank parametric families, $|\Delta|$ routinely spans 50 to 110 decimal digits, leaving many landmark curves across the literature with uncertified conductors (marked as \texttt{?} or unranked).
+The computational verification of high-rank elliptic curves over $\mathbb{Q}$ has long been bottlenecked by the difficulty of certifying global arithmetic invariants, most notably the arithmetic conductor $N$. In modern automated reasoning platforms such as the NSF Institute for Computer-Aided Reasoning in Mathematics (ICARM) Elliptic Curve Rank Leaderboard (maintained under U.S.\ National Science Foundation Grant DMS-2425401), candidate curves are verified inside an isolated Cloudflare Worker running a WebAssembly build of PARI/GP 2.17.2. While the ICARM kernel certifies rational point independence via an exact, floating-point-free 2-descent quadratic-character proof certificate over $\mathbb{F}_2$ and computes the global minimal model, minimal discriminant $|\Delta_{\min}|$, Faltings height $h_F(E)$, and naive height $h_{\text{naive}}(E)$ via \texttt{ellminimalmodel} without factoring $\Delta_{\min}$, automatic conductor determination (\texttt{autoBadPrimes}) is restricted to trial division up to $10^7$. Whenever $|\Delta_{\min}|$ contains two or more prime factors exceeding $10^7$---as routinely occurs for high-rank curves where $|\Delta_{\min}|$ spans 50 to 110 decimal digits---unassisted verification returns \texttt{conductor:\ null} (\texttt{?}), excluding the curve from the Conductor $N$ leaderboard.
 
-In this paper, we present an automated certificate-generation and isogeny graph exploration framework that resolves this bottleneck. Our methodology unites two engines tailored specifically to the arithmetic of elliptic curves: (1) the \emph{4-Stage Werr Multi-Layer Algebraic Sieve}, which couples Stage 1 algebraic invariant-root and division-polynomial gcd kernels ($\gcd(c_4, c_6, \Delta, a_4, a_6)$), Stage 2 elliptic syzygy and monic cubic divisor peeling ($c_4^3 - 1728\Delta = c_6^2$, $\Delta = d_0 \cdot s^3$, and 2-torsion pairwise root-difference decomposition), Stage 3 parallel Pollard $\rho$, Pollard $p-1$, and multi-curve Montgomery/Weierstrass ECM ($B_1 = 10^5, B_2 = 5 \times 10^6$), and Stage 4 word-packed $\mathbb{F}_2$ Multipolynomial Quadratic Sieve (MPQS) with deterministic APR-CL / Miller--Rabin primality closure; and (2) systematic \emph{V\'{e}lu Isogeny Graph Transport}, traversing rational $n$-isogeny neighborhoods ($n \in \{2, 3, 4, 5, 6, 8, 10, 12\}$) and exact point-interpolation Weierstrass recovery to discover minimal models with strictly reduced discriminants, Faltings heights, and naive heights while preserving Mordell--Weil rank and conductor.
+In this paper, we present an automated proof-certificate generation and isogeny graph exploration framework that resolves this bottleneck. Our methodology unites two engines tailored to the arithmetic of elliptic curves: (1) the \emph{4-Stage Werr Multi-Layer Algebraic Sieve}, which couples Stage 1 Weierstrass covariant gcd kernels ($\gcd(a_4, a_6, \Delta, c_4, c_6)$) and division-polynomial root bracketing, Stage 2 elliptic syzygy cubic divisor peeling ($\Delta = d_0 \cdot s^3$) and 2-torsion pairwise root-difference decomposition, Stage 3 parallel Pollard--Brent $\rho$, Pollard $p-1$, and multi-curve Montgomery/Weierstrass ECM, and Stage 4 word-packed $\mathbb{F}_2$ Multipolynomial Quadratic Sieve (MPQS) with deterministic primality closure; and (2) systematic \emph{V\'{e}lu Isogeny Graph Transport}, traversing rational $n$-isogeny neighborhoods ($n \in \{2, 3, 4, 5, 6, 8, 10, 12\}$) and exact 12-case Weierstrass point-interpolation recovery to discover minimal models with strictly reduced discriminants and heights while preserving Mordell--Weil rank and conductor.
 
-Deploying this pipeline on the NSF ICARM leaderboard, we established \textbf{230 newly certified curves} (\texttt{\#4308}--\texttt{\#4537}) across 8 rational torsion subgroups with \textbf{100\% certified conductor factorizations} (230/230, eliminating all missing conductor certificates), securing \textbf{30 \#1 Gold records}, \textbf{80 Top-3 podium finishes}, and \textbf{418 Top-10 placements} across 43 active leaderboards. Landmark results include the ``Grand Slam'' curve \texttt{\#4315} ($T = \mathbb{Z}/2\mathbb{Z} \times \mathbb{Z}/2\mathbb{Z}, \mathrm{Rank} \ge 9$), which captures \texttt{\#1} in all four metrics simultaneously, the factorization of a 110-digit discriminant into 21 distinct bad primes for the Rank $\ge 12$ curve \texttt{\#4383}, and full conductor certification ($\log N = 141.86$) for the Elkies Rank $\ge 19$ curve \texttt{\#4323}. All datasets, reproduction scripts, and verification receipts are permanently archived at CERN Zenodo (DOI: \href{https://doi.org/10.5281/zenodo.23436282}{10.5281/zenodo.23436282}).
+Deploying this pipeline on the NSF ICARM leaderboard, we established \textbf{230 newly certified curves} (\texttt{\#4308}--\texttt{\#4537}) across 8 rational torsion subgroups with \textbf{100\% certified conductor factorizations} ($230/230$, zero unknown conductors), securing \textbf{30 \#1 Gold records}, \textbf{80 Top-3 podiums}, and \textbf{418 Top-10 placements} across 43 active leaderboards. Landmark achievements include the ``Grand Slam'' curve \texttt{\#4315} ($T = \mathbb{Z}/2\mathbb{Z} \times \mathbb{Z}/2\mathbb{Z}, \mathrm{Rank} \ge 9$), which simultaneously ranks \texttt{\#1} in all four metrics ($N, |\Delta|, h_F, h_{\text{naive}}$); the complete 21-prime factorization of a 110-digit discriminant for the Klagsbrun--Dujella Rank $\ge 12$ curve \texttt{\#4383}; and full conductor certification ($\log N = 141.86$) of a 54-digit composite cofactor for the Elkies Rank $\ge 19$ curve \texttt{\#4323}. All datasets, reproduction scripts, and verification receipts are permanently archived at CERN Zenodo (DOI: \href{https://doi.org/10.5281/zenodo.23436282}{10.5281/zenodo.23436282}).
 \end{abstract}
 
-\noindent\textbf{Keywords:} Automated Reasoning, Proof Certificates, Elliptic Curves, Conductor Certification, Tate's Algorithm, V\'{e}lu Isogenies, Algebraic Sieve, Symbolic Computation, Computer-Aided Mathematics.
+\noindent\textbf{Keywords:} Automated Reasoning, Proof Certificates, Elliptic Curves, Conductor Certification, 2-Descent Independence Certificate, Tate's Algorithm, V\'{e}lu Isogenies, Algebraic Sieve, Symbolic Computation.
 
 \smallskip
 \noindent\textbf{2020 Mathematics Subject Classification:} 11G05 (Primary); 11Y05, 11Y16, 14H52, 68T15, 68W30.
@@ -77,49 +78,58 @@ Deploying this pipeline on the NSF ICARM leaderboard, we established \textbf{230
 
 \section{Introduction and Computer-Aided Reasoning in Arithmetic Geometry}
 
-The interface between automated deduction, formal proof verification, and computational number theory has undergone a profound transformation over the past decade \cite{avigad2021formal,blanchette2016interactive,hales2017formal}. Historically, computational records in arithmetic geometry---such as tables of elliptic curves over $\mathbb{Q}$ with high Mordell--Weil rank or prescribed rational torsion subgroups---were compiled as static text repositories maintained by individual researchers. While foundational to number theory, static tables rely on implicit trust in unbundled off-line scripts and frequently omit computationally expensive global invariants.
+The synergy between automated deduction, formal proof certificate checking, and computational number theory has reshaped how mathematical records are established and audited \cite{avigad2021formal,blanchette2016interactive,hales2017formal}. Historically, computational benchmarks in arithmetic geometry---most notably tables of elliptic curves over $\mathbb{Q}$ with record Mordell--Weil rank or prescribed rational torsion subgroups---were curated as static webpages or text repositories. While foundational to modern number theory, static tables rely on off-line scripts and frequently omit computationally expensive global invariants.
 
-A major advance toward interactive, machine-certified mathematical benchmarking is the \textbf{NSF Institute for Computer-Aided Reasoning in Mathematics (ICARM)}, established at Carnegie Mellon University and partner institutions under U.S.\ National Science Foundation Grant DMS-2425401. As part of its automated reasoning infrastructure, ICARM operates the official \textbf{Elliptic Curve Rank Leaderboard} (\url{https://elliptic-rank.icarm.cloud}), architected and maintained by David Renshaw and Seewoo Lee \cite{icarm2026leaderboard}. Rather than accepting unverified user assertions, the ICARM platform enforces a zero-trust, certificate-driven verification protocol executed inside an isolated WebAssembly (WASM) worker running the computer algebra kernel \textbf{PARI/GP 2.17.2} \cite{parigp2024}.
+A major advance toward zero-trust, machine-certified mathematical benchmarking is the \textbf{NSF Institute for Computer-Aided Reasoning in Mathematics (ICARM)}, established under U.S.\ National Science Foundation Grant DMS-2425401 (\url{https://icarm.io}). As a flagship benchmark for computer-aided mathematical discovery, ICARM operates the official \textbf{Elliptic Curve Rank Leaderboard} (\url{https://elliptic-rank.icarm.cloud}), architected and maintained by David Renshaw and Seewoo Lee \cite{icarm2026leaderboard}. Rather than trusting contributor assertions, the ICARM platform executes a deterministic, floating-point-free verification pipeline inside a sandboxed Cloudflare Worker running a precompiled WebAssembly (WASM) binary (\texttt{gp-sta.wasm}) of \textbf{PARI/GP 2.17.2} \cite{parigp2024} with 64 MB of fixed linear memory and a 16 MB PARI stack.
 
-\subsection{The In-Worker WebAssembly Verification Protocol}
+\subsection{The ICARM In-Worker Formal Verification Architecture}
 
-When a contributor submits a candidate elliptic curve $E/\mathbb{Q}$ defined by integer Weierstrass coefficients $\mathbf{a} = [a_1, a_2, a_3, a_4, a_6]$, a list of rational point coordinates $\mathcal{P} = \{P_1, \dots, P_r\}$, and an optional list of prime factors $\mathcal{S} = \{p_1, \dots, p_k\}$, the ICARM verification kernel executes a six-stage formal decision procedure:
+An examination of the ICARM verification kernel (\texttt{src/verify.ts} and \texttt{src/pari.ts} in \cite{icarm2026leaderboard}) reveals a remarkably clean automated-reasoning architecture. When an external prover submits an integer Weierstrass 5-tuple $\mathbf{a} = [a_1, a_2, a_3, a_4, a_6] \in \mathbb{Z}^5$, a sequence of $n$ rational points $\mathcal{P} = \{P_1, \dots, P_n\} \subset \mathbb{Q}^2$, and an optional prime certificate $\mathcal{S} = \{p_1, \dots, p_k\}$, the in-worker kernel executes six verification stages:
 
 \begin{enumerate}[leftmargin=2em]
-    \item \textbf{Geometric Non-Singularity Check:} The kernel evaluates the Tate invariants $b_2, b_4, b_6, b_8$, the covariants $c_4, c_6$, and the discriminant $\Delta(\mathbf{a})$. It verifies that $\Delta(\mathbf{a}) \neq 0$, guaranteeing that $E$ defines a smooth projective curve of genus $1$ over $\mathbb{Q}$.
-    \item \textbf{Canonical Isomorphism Key Generation:} Using LMFDB-compatible invariant reduction, the kernel removes admissible scaling powers $u = 2^\alpha 3^\beta$ from $(c_4, c_6)$ to compute the canonical isomorphism class key \texttt{"c4:c6"}, preventing duplicate submissions of isomorphic models.
-    \item \textbf{Exact Rational Point Membership:} For every asserted generator $P_j = (x_j, y_j) \in \mathbb{Q}^2$, the kernel verifies exact arithmetic equality in $\mathbb{Q}$:
+    \item \textbf{Geometric Non-Singularity and Minimal Model Reduction:} The kernel initializes $E = \mathtt{ellinit}(\mathbf{a})$, verifies $\Delta(\mathbf{a}) \neq 0$, and computes the unique normalized global minimal model $E_{\min} = \mathtt{ellminimalmodel}(E, \&v)$ with $a_1, a_3 \in \{0, 1\}$ and $a_2 \in \{-1, 0, 1\}$. Crucially, \texttt{ellminimalmodel} determines the canonical isomorphism key \texttt{"c4:c6"}, the minimal discriminant $\Delta_{\min} = \mathtt{Emin.disc}$, the naive height
     \begin{equation}
-    y_j^2 + a_1 x_j y_j + a_3 y_j = x_j^3 + a_2 x_j^2 + a_4 x_j + a_6.
+    h_{\text{naive}}(E) = \log \max\!\left(|c_4(E_{\min})|^3,\, c_6(E_{\min})^2\right),
     \end{equation}
-    \item \textbf{Torsion Subgroup Certification:} Applying Lutz--Nagell bounds and division polynomial root analysis via \texttt{elltors(E)}, the kernel certifies the exact rational torsion subgroup $E(\mathbb{Q})_{\text{tors}} \cong T$ among the 15 admissible groups classified by Mazur's Torsion Theorem \cite{mazur1977modular}.
-    \item \textbf{Mordell--Weil Rank Certification via Regulator Positivity:} The kernel computes the canonical N\'{e}ron--Tate height pairing matrix
+    and the LMFDB-normalized stable Faltings height from the minimal period lattice $\Omega = \mathbb{Z}\omega_1 \oplus \mathbb{Z}\omega_2$:
     \begin{equation}
-    R(\mathcal{P}) = \left( \langle P_i, P_j \rangle \right)_{1 \le i,j \le r}, \quad \langle P_i, P_j \rangle = \hat{h}(P_i + P_j) - \hat{h}(P_i) - \hat{h}(P_j),
+    h_F(E) = -\frac{1}{2} \log \left|\mathrm{Im}(\overline{\omega_1}\omega_2)\right|,
     \end{equation}
-    using \texttt{ellbil(E, P\_i, P\_j)} at high precision, and extracts a maximal $\mathbb{Z}$-linearly independent subset of $\mathcal{P}$ whose Gram determinant $\det R > 0$ is strictly bounded away from zero. This provides a machine-certified lower bound $\mathrm{rank}(E(\mathbb{Q})) \ge r$.
-    \item \textbf{Global Minimal Reduction and Conductor Certification ($\log N$):} Finally, the kernel invokes Tate's global reduction algorithm \cite{tate1975algorithm} via \texttt{ellglobalred(E)} to transform $E$ to its global minimal integral Weierstrass equation, compute the minimal discriminant $|\Delta_{\min}|$, the Faltings height $h_F(E)$, the naive height $h_{\text{naive}}(E)$, and the global arithmetic conductor $N$.
+    \emph{without factoring the discriminant $\Delta_{\min}$}.
+    \item \textbf{Exact Rational Point Membership and Transport:} Every submitted coordinate pair $P_j = (x_j, y_j) \in \mathbb{Q}^2$ is verified in exact rational arithmetic via \texttt{ellisoncurve(E, P\_j)} and mapped onto $E_{\min}(\mathbb{Q})$ via \texttt{ellchangepoint(P\_j, v)}.
+    \item \textbf{Torsion Subgroup Certification:} Using Lutz--Nagell bounds and division polynomial root analysis via \texttt{elltors(Emin)}, the kernel certifies the exact rational torsion structure $E(\mathbb{Q})_{\text{tors}} \cong T$ among the 15 admissible groups of Mazur's Torsion Theorem \cite{mazur1977modular}.
+    \item \textbf{Floating-Point-Free 2-Descent Rank Independence Certificate (\texttt{erk\_cert}):} Rather than relying on floating-point height pairings to certify rank, the ICARM kernel implements the \emph{exact algebraic 2-descent quadratic-character certificate} of Cremona \cite{cremona2006filter} (Section~2, attributed to Brumer) and Silverman \cite{silverman2000xedni} (Appendix~D). Transforming $E_{\min}$ via $v_6 = [1/6, -b_2/12, -a_1/2, -(a_3 - b_2 a_1/12)/2]$ to the integral short Weierstrass curve
+    \begin{equation}\label{eq:short_model_F}
+    F: \quad y^2 = f(x) = x^3 - 27 c_4(E_{\min}) x - 54 c_6(E_{\min}), \qquad \Delta(F) = 6^{12} \Delta_{\min},
+    \end{equation}
+    the kernel iterates over good auxiliary primes $p < 10^6$ ($p \nmid 6\Delta_{\min}$) for which $f(x) \bmod p$ has $k \ge 1$ roots $\theta_1, \dots, \theta_k \in \mathbb{F}_p$. At each such prime, it evaluates the group homomorphism
+    \begin{equation}\label{eq:quad_char_map}
+    \varepsilon_p: F(\mathbb{Q})/2F(\mathbb{Q}) \longrightarrow (\mathbb{Z}/2\mathbb{Z})^{\min(k,2)}, \qquad \varepsilon_p(P)_j = \frac{1 - \left(\frac{a_j}{p}\right)}{2} \in \mathbb{F}_2,
+    \end{equation}
+    where for $P = (u/w^2, v/w^3) \in F(\mathbb{Q})$ in lowest terms, $a_j = (u - \theta_j w^2) \bmod p$ if $u \not\equiv \theta_j w^2 \pmod p$, and $a_j = f'(\theta_j) = (3\theta_j^2 - 27c_4) \bmod p$ when $u \equiv \theta_j w^2 \pmod p$. Stacking the $\varepsilon_p$-vectors of the even-order generators of $F(\mathbb{Q})_{\text{tors}}$ into a binary matrix $M_{\text{tors}}$ and those of the $n$ candidate points into $M_{\text{pts}}$, the kernel certifies that $P_1, \dots, P_n$ are $\mathbb{Z}$-linearly independent in $E(\mathbb{Q})/E(\mathbb{Q})_{\text{tors}}$ if and only if
+    \begin{equation}\label{eq:f2_rank_cert}
+    \mathrm{rank}_{\mathbb{F}_2}\!\begin{pmatrix} M_{\text{tors}} \\ M_{\text{pts}} \end{pmatrix} - \mathrm{rank}_{\mathbb{F}_2}(M_{\text{tors}}) = n.
+    \end{equation}
+    If a kernel combination $Q + \tau \in 2F(\mathbb{Q})$ is divisible by $2$ in $F(\mathbb{Q})$ (verified algebraically via \texttt{nfroots} on the degree-$4$ doubling polynomial in \texttt{erk\_half2}), the kernel replaces the largest-height point in the dependency with its half-point $R$ (up to $40$ halvings).
+    \item \textbf{Informational Regulator Diagnostic:} At working precision $\min(250, \max(38, 38+2n))$ decimal digits, the kernel evaluates the N\'{e}ron--Tate regulator $R = \det \mathtt{ellheightmatrix}(E_{\min}, \mathcal{P})$ purely as an informational diagnostic.
+    \item \textbf{Prime-Gated Conductor Verification (\texttt{autoBadPrimes} vs.\ \texttt{conductorFromPrimes}):} Because calling \texttt{ellglobalred} triggers unbounded integer factorization inside PARI/GP, the ICARM kernel \emph{never calls \texttt{ellglobalred}}. Instead, if no prime certificate $\mathcal{S}$ is supplied, \texttt{autoBadPrimes} performs trial division on $|\Delta_{\min}|$ up to $\mathtt{AUTO\_FACTOR\_BOUND} = 10^7$ (\texttt{factor(abs(E.disc), 10\^{}7)}). It succeeds \textbf{only} if every residual cofactor $b > 10^7$ is a Baillie--PSW probable prime (\texttt{ispseudoprime(b)}) or a prime power (\texttt{ispower(b, , \&r) \&\& ispseudoprime(r)}). Otherwise, it immediately aborts and returns \texttt{conductor:\ null} (\texttt{?}).
 \end{enumerate}
 
 \subsection{The Conductor Bottleneck on High-Rank Leaderboards}
 
-Across the ICARM leaderboard, curves within each $(T, r)$ category---where $T = E(\mathbb{Q})_{\text{tors}}$ is the torsion subgroup and $r$ is the certified Mordell--Weil rank lower bound---are ranked across four primary minimality metrics:
+Across the ICARM platform, curves in each $(T, r)$ category ($T = E(\mathbb{Q})_{\text{tors}}$, $\mathrm{rank} \ge r$) are ranked across four official minimality leaderboards:
 \begin{equation}
-\text{(i) Conductor } N, \;\; \text{(ii) Discriminant } |\Delta|, \;\; \text{(iii) Faltings Height } h_F(E), \;\; \text{(iv) Naive Height } h_{\text{naive}}(E).
+\text{(i) Conductor } N, \;\; \text{(ii) Discriminant } |\Delta_{\min}|, \;\; \text{(iii) Faltings Height } h_F(E), \;\; \text{(iv) Naive Height } h_{\text{naive}}(E).
 \end{equation}
-While $|\Delta|$, $h_F(E)$, and $h_{\text{naive}}(E)$ can be evaluated directly from the Weierstrass coefficients once local scaling factors at $p \in \{2, 3\}$ are removed, computing the conductor $N = \prod_{p \mid \Delta} p^{f_p}$ requires knowing the \emph{complete prime factorization} of the discriminant $\Delta$.
-
-In high-rank elliptic curve constructions pioneered by Noam Elkies \cite{elkies2006high}, Andrej Dujella \cite{dujella2024highrank}, Michael Rubinstein \cite{rubinstein2024tables}, and Zev Klagsbrun, curves of rank $r \in [7, 29]$ are obtained by specializing multi-parameter K3 and rational elliptic surfaces over $\mathbb{Q}(t_1, \dots, t_m)$ at rational parameters of large height. Because the discriminant $\Delta$ is a polynomial of high degree in the specialization parameters, the resulting integer $|\Delta|$ routinely spans \textbf{50 to 110 decimal digits} (165 to 365 bits). When submitted without a pre-computed prime factorization certificate $\mathcal{S}$, the in-worker PARI/GP kernel cannot factor $|\Delta|$ within the interactive execution budget, leaving the conductor field marked as \texttt{?} (unfactored/unknown) and disqualifying the curve from the Conductor $N$ leaderboard.
-
-Furthermore, many high-rank curves in the historical literature are recorded in a single Weierstrass coordinate system tied to their fibration parameterization, without exploring the finite graph of $\mathbb{Q}$-isogenous models. Because rational isogenies preserve both the Mordell--Weil rank $r$ and the conductor $N$ while altering $|\Delta|$, $h_F(E)$, and $h_{\text{naive}}(E)$, uninspected vertices of the rational isogeny graph often conceal strictly smaller minimal models.
+In high-rank constructions pioneered by Noam Elkies \cite{elkies2006high,elkies2024rank29}, Andrej Dujella \cite{dujella2024highrank}, Michael Rubinstein \cite{rubinstein2024tables}, and Zev Klagsbrun \cite{elkies2024rank29}, curves of rank $r \in [7, 29]$ are obtained by specializing multi-parameter K3 and rational elliptic surfaces at rational parameters of large height. Because $|\Delta_{\min}|$ typically spans \textbf{50 to 110 decimal digits} (165 to 365 bits), any discriminant containing two or more prime factors above $10^7$ fails \texttt{autoBadPrimes}, leaving its conductor marked as \texttt{?} and disqualifying the curve from the Conductor $N$ leaderboard. Moreover, many high-rank curves in historical archives are recorded in a single Weierstrass coordinate system tied to their fibration parameterization, leaving the surrounding rational V\'{e}lu isogeny graph unexplored.
 
 \subsection{Summary of Contributions}
 
-In this work, we bridge automated proof-certificate generation and computational arithmetic geometry through three primary contributions:
+In this work, we unite automated proof-certificate synthesis and computational arithmetic geometry through three primary contributions:
 \begin{enumerate}[leftmargin=2em]
-    \item \textbf{The 4-Stage Werr Multi-Layer Algebraic Sieve for Elliptic Discriminants:} We design a specialized four-stage factorization and certificate synthesis pipeline that exploits Weierstrass covariant gcds, elliptic syzygy cubic peeling ($\Delta = d_0 \cdot s^3$), 2-torsion monic cubic root-difference splitting, parallel Pollard $\rho$/$p-1$ and multi-curve ECM, and word-packed $\mathbb{F}_2$ MPQS closure to completely factor composite discriminants up to 110 decimal digits.
-    \item \textbf{Systematic V\'{e}lu Isogeny Graph Transport and Point-Interpolation Recovery:} We implement an exact rational isogeny graph explorer covering subgroups of orders $n \in \{2, 3, 4, 5, 6, 7, 8, 9, 10, 12\}$ together with an exact linear point-interpolation solver that reconstructs missing Weierstrass models from historical point tables and transports Mordell--Weil generators $P_j \mapsto \phi(P_j)$ across 2- and 3-isogeny graphs.
-    \item \textbf{Comprehensive Public Certification on the NSF ICARM Leaderboard:} We submitted and certified \textbf{230 distinct Top-10 curves} (\texttt{\#4308} through \texttt{\#4537}) under contributor profile \texttt{user/114} (\url{https://elliptic-rank.icarm.cloud/user/114}), achieving \textbf{100.0\% conductor certification} ($230/230$ with zero unknown conductors), \textbf{30 \#1 Gold records}, \textbf{80 Top-3 podiums}, and \textbf{418 Top-10 metric placements} across 43 active leaderboards \cite{dagli2026zenodo}.
+    \item \textbf{The 4-Stage Werr Multi-Layer Algebraic Sieve for Elliptic Discriminants:} We design a four-stage factorization and certificate synthesis architecture (Section~\ref{sec:werr_sieve}) that combines Stage~1 Weierstrass covariant gcd kernels ($\gcd(a_4, a_6, \Delta, c_4, c_6)$) and division-polynomial root bracketing, Stage~2 elliptic syzygy cubic divisor peeling ($\Delta = d_0 \cdot s^3$) and 2-torsion pairwise root-difference decomposition, Stage~3 parallel Pollard--Brent $\rho$/$p-1$ and multi-curve ECM, and Stage~4 word-packed $\mathbb{F}_2$ MPQS closure to completely factor composite discriminants up to 110 decimal digits \cite{dagli2026zenodo,dagli2026sieve}.
+    \item \textbf{Systematic V\'{e}lu Isogeny Graph Transport and 12-Case Point-Interpolation Recovery:} We implement an exact rational isogeny graph explorer covering subgroups of orders $n \in \{2, 3, 4, 5, 6, 7, 8, 9, 10, 12\}$ together with a 12-case normalized Weierstrass point-interpolation solver (Section~\ref{sec:velu_engine}) that reconstructs missing Weierstrass models from archival point tables and transports Mordell--Weil generators $P_j \mapsto \phi(P_j)$ across 2- and 3-isogeny graphs.
+    \item \textbf{100\% Conductor Certification and 30 \#1 Gold Records on NSF ICARM:} We submitted and certified \textbf{230 distinct Top-10 curves} (\texttt{\#4308}--\texttt{\#4537}) under contributor profile \texttt{user/114} (\url{https://elliptic-rank.icarm.cloud/user/114}), achieving \textbf{100.0\% conductor certification} ($230/230$ with zero unknown conductors), \textbf{30 \#1 Gold records}, \textbf{80 Top-3 podiums}, and \textbf{418 Top-10 metric placements} across 43 active leaderboards (Section~\ref{sec:results}).
 \end{enumerate}
 
 \section{Conductor Determination as Formal Proof Certificate Checking}
@@ -135,54 +145,40 @@ b_8 &= a_1^2 a_6 + 4a_2 a_6 - a_1 a_3 a_4 + a_2 a_3^2 - a_4^2, \\
 c_4 &= b_2^2 - 24b_4, \qquad c_6 = -b_2^3 + 36b_2 b_4 - 216b_6, \\
 \Delta &= -b_2^2 b_8 - 8b_4^3 - 27b_6^2 + 9b_2 b_4 b_6 = \frac{c_4^3 - c_6^2}{1728}.
 \end{align}
-An admissible change of Weierstrass coordinates over $\mathbb{Q}$ takes the form $(x, y) = (u^2 x' + r, u^3 y' + u^2 s x' + t)$ with $u \in \mathbb{Q}^\times$ and $r, s, t \in \mathbb{Q}$, under which the invariants transform as:
-\begin{equation}\label{eq:u_scaling}
-c_4' = u^{-4} c_4, \qquad c_6' = u^{-6} c_6, \qquad \Delta' = u^{-12} \Delta.
-\end{equation}
-An integral model~\eqref{eq:weierstrass} is \emph{globally minimal} over $\mathbb{Z}$ if $v_p(\Delta)$ is minimized simultaneously at every prime $p$. Because $\mathbb{Z}$ has class number $1$, every elliptic curve $E/\mathbb{Q}$ admits a unique normalized global minimal model satisfying $a_1, a_3 \in \{0, 1\}$ and $a_2 \in \{-1, 0, 1\}$.
+An admissible change of coordinates $(x, y) = (u^2 x' + r, u^3 y' + u^2 s x' + t)$ with $u \in \mathbb{Q}^\times$ and $r, s, t \in \mathbb{Q}$ scales the covariants by $c_4' = u^{-4} c_4$, $c_6' = u^{-6} c_6$, and $\Delta' = u^{-12} \Delta$. Because $\mathbb{Z}$ is a principal ideal domain, $E/\mathbb{Q}$ admits a unique normalized global minimal model $E_{\min}$ satisfying $a_1, a_3 \in \{0, 1\}$, $a_2 \in \{-1, 0, 1\}$, and minimal valuation $v_p(\Delta_{\min})$ simultaneously at all primes $p$.
 
 \begin{definition}[Arithmetic Conductor and Ogg--Saito Formula]
-Let $E/\mathbb{Q}$ be a globally minimal Weierstrass model with minimal discriminant $\Delta_{\min}$. The \emph{arithmetic conductor} of $E$ is the positive integer
+Let $E_{\min}/\mathbb{Q}$ be the global minimal Weierstrass model with minimal discriminant $\Delta_{\min}$. The \emph{arithmetic conductor} of $E$ is the positive integer
 \begin{equation}
-N(E) = \prod_{p \mid \Delta_{\min}} p^{f_p},
+N(E) = \prod_{p \mid \Delta_{\min}} p^{f_p}, \qquad f_p = v_p(\Delta_{\min}) - m_p + 1,
 \end{equation}
-where the local exponent $f_p \in \mathbb{Z}_{\ge 0}$ is given by the Ogg--Saito formula:
-\begin{equation}
-f_p = v_p(\Delta_{\min}) - m_p + 1,
-\end{equation}
-with $m_p$ denoting the number of irreducible components (counted without multiplicity) of the special fiber $\mathcal{E}_p$ of the N\'{e}ron minimal model of $E$ over $\mathbb{Z}_p$. Specifically:
-\begin{itemize}[noitemsep]
-    \item $f_p = 0$ if and only if $p \nmid \Delta_{\min}$ ($E$ has good reduction at $p$, Kodaira type $\mathrm{I}_0$);
-    \item $f_p = 1$ if and only if $p \mid \Delta_{\min}$ and $p \nmid c_4$ ($E$ has multiplicative reduction at $p$, Kodaira type $\mathrm{I}_n$ with $n = v_p(\Delta_{\min}) \ge 1$);
-    \item $f_p = 2 + \delta_p \ge 2$ if $E$ has additive reduction at $p$ ($p \mid \gcd(c_4, \Delta_{\min})$), where the wild Swan ramification invariant $\delta_p = 0$ for all primes $p \ge 5$, while $0 \le \delta_3 \le 3$ ($f_3 \le 5$) and $0 \le \delta_2 \le 6$ ($f_2 \le 8$).
-\end{itemize}
+where $m_p$ is the number of irreducible components (counted without multiplicity) of the special fiber of the N\'{e}ron minimal model of $E$ over $\mathbb{Z}_p$. Specifically, $f_p = 0$ for good reduction ($p \nmid \Delta_{\min}$, Kodaira type $\mathrm{I}_0$); $f_p = 1$ for multiplicative reduction ($p \mid \Delta_{\min}, p \nmid c_4$, type $\mathrm{I}_n$ with $n = v_p(\Delta_{\min}) \ge 1$); and $f_p = 2 + \delta_p \ge 2$ for additive reduction ($p \mid \gcd(c_4, \Delta_{\min})$), where the wild Swan ramification invariant $\delta_p = 0$ for all $p \ge 5$, while $0 \le \delta_3 \le 3$ ($f_3 \le 5$) and $0 \le \delta_2 \le 6$ ($f_2 \le 8$).
 \end{definition}
 
-\begin{proposition}[Certificate Verification Complexity of Tate's Algorithm]\label{prop:tate_complexity}
-Let $E/\mathbb{Q}$ be specified by an integral Weierstrass tuple $\mathbf{a} = [a_1, a_2, a_3, a_4, a_6] \in \mathbb{Z}^5$ with discriminant $\Delta \neq 0$. Suppose an external prover supplies a prime factorization certificate
-\begin{equation}
-\mathcal{S} = \{p_1, p_2, \dots, p_k\} \quad \text{such that} \quad |\Delta| = \prod_{i=1}^k p_i^{e_i}, \quad e_i = v_{p_i}(\Delta) \ge 1.
-\end{equation}
-Then a verification kernel can certify the primality of each $p_i$, execute Kraus--Laska--Connell local minimization at every $p_i$ with $e_i \ge 12$, run Tate's algorithm \cite{tate1975algorithm} at all bad primes, and output the exact global minimal model $E_{\min}$ and certified conductor $N(E)$ in deterministic time polynomial in $\log |\Delta|$.
+\begin{proposition}[Polynomial-Time Verification of \texttt{conductorFromPrimes}]\label{prop:tate_complexity}
+Let $E_{\min}/\mathbb{Q}$ be the global minimal Weierstrass model computed by \texttt{ellminimalmodel(E)} with minimal discriminant $\Delta_{\min} \neq 0$. Suppose an external prover supplies a finite set of candidate primes $\mathcal{S} = \{p_1, p_2, \dots, p_k\} \subset \mathbb{Z}_{\ge 2}$. Then the ICARM verification kernel (\texttt{conductorFromPrimes} in \cite{icarm2026leaderboard}) certifies the exact global conductor $N(E)$ in deterministic time polynomial in $\log |\Delta_{\min}|$ via the four-step decision procedure:
+\begin{enumerate}[noitemsep,leftmargin=2em]
+    \item \textbf{Primality Verification:} Verify $\mathtt{ispseudoprime}(p_i) = 1$ for every $p_i \in \mathcal{S}$;
+    \item \textbf{Trial-Division Completeness:} Initialize $d \leftarrow |\Delta_{\min}|$, divide out $p_i^{v_{p_i}(d)}$ for each $p_i \in \mathcal{S}$, and verify that the cofactor residual satisfies $d = 1$;
+    \item \textbf{Bad-Prime Filtering:} Restrict to the sorted subset of primes dividing $\Delta_{\min}$:
+    \begin{equation}
+    \mathcal{B} = \mathtt{vecsort}\!\left(\{p \in \mathcal{S} : \Delta_{\min} \bmod p = 0\}\right);
+    \end{equation}
+    \item \textbf{Local Tate Reduction Product:} For each $p \in \mathcal{B}$, execute Tate's local reduction algorithm \cite{tate1975algorithm} via $\mathtt{elllocalred}(E_{\min}, p)[1]$ to obtain $f_p$ and return $N(E) = \prod_{p \in \mathcal{B}} p^{f_p}$.
+\end{enumerate}
 \end{proposition}
 
 \begin{proof}
-Verification of the identity $|\Delta| = \prod_{i=1}^k p_i^{e_i}$ requires at most $\sum_{i=1}^k e_i \le \log_2 |\Delta|$ multi-precision divisions of bit-length $B = \lceil \log_2 |\Delta| \rceil$, costing $O(B^2)$ bit operations. Primality verification of each $p_i \le |\Delta|$ via deterministic APR-CL \cite{cohen1984primality} or ECPP certificates runs in time $O((\log p_i)^{4+\varepsilon})$. For each prime $p_i \in \mathcal{S}$, Tate's algorithm \cite{cremona1997algorithms,tate1975algorithm} executes at most $\lfloor e_i / 12 \rfloor + 1$ local loop iterations. Each iteration computes $p_i$-adic valuations of the invariants and finds roots over $\mathbb{F}_{p_i}$ of auxiliary polynomials of degree at most $3$:
-\begin{align}
-P_1(T) &= T^2 + a_1 T - a_2 \pmod{p_i}, \\
-P_2(Y) &= Y^2 + a_3 Y - a_6 \pmod{p_i}, \\
-P_3(X) &= X^3 + a_{2,1} X^2 + a_{4,2} X + a_{6,3} \pmod{p_i}, \quad a_{j,m} = p_i^{-m} a_j.
-\end{align}
-Root-finding for degree $\le 3$ polynomials over $\mathbb{F}_{p_i}$ requires $O(\log^2 p_i)$ field operations via Cantor--Zassenhaus. Since $k \le \log_2 |\Delta|$ and $\sum_{i=1}^k \log p_i \le \log |\Delta|$, the entire global reduction and conductor certification procedure terminates in $O(\mathrm{poly}(\log |\Delta|))$ time.
+Step~1 requires $k$ Baillie--PSW / APR-CL primality tests \cite{cohen1984primality}, each running in $O((\log p_i)^{4+\varepsilon})$ bit operations. Step~2 performs at most $\sum_{p \in \mathcal{B}} v_p(\Delta_{\min}) \le \log_2 |\Delta_{\min}|$ exact multi-precision divisions of bit-length $B = \lceil \log_2 |\Delta_{\min}| \rceil$, costing $O(B^2)$ bit operations, and proves that $\mathcal{B}$ contains every prime divisor of $\Delta_{\min}$. Step~3 cleanly discards any extraneous primes $p \in \mathcal{S} \setminus \mathcal{B}$ (such as primes dividing a non-minimal scaling factor $u$ of the submitted model $\mathbf{a}$ where $\Delta(\mathbf{a}) = u^{12}\Delta_{\min}$). In Step~4, since $E_{\min}$ is already globally minimal, Tate's local algorithm \cite{cremona1997algorithms,tate1975algorithm} executes a single pass at each $p \in \mathcal{B}$, evaluating $p$-adic valuations and finding roots over $\mathbb{F}_p$ of auxiliary polynomials of degree $\le 3$ in $O(\log^2 p)$ field operations. Since $|\mathcal{B}| \le \log_2 |\Delta_{\min}|$, the total verification time is $O(\mathrm{poly}(\log |\Delta_{\min}|))$.
 \end{proof}
 
-\begin{remark}[Automated Reasoning Architecture: Separating Search from Verification]
-Proposition~\ref{prop:tate_complexity} exemplifies the foundational design principle of modern computer-aided reasoning (\texttt{cs.LO}): \emph{separating untrusted, computationally intensive certificate search from lightweight, deterministic kernel verification}. In the ICARM architecture, the submission payload includes the field \texttt{"primes": ["p\_1", ..., "p\_k"]}. Crucially, if a submitted model $\mathbf{a}$ is non-minimal with scaling factor $u \in \mathbb{Z}_{>1}$, its raw discriminant satisfies $\Delta(\mathbf{a}) = u^{12} \Delta_{\min}$. For PARI/GP's in-worker \texttt{ellglobalred} routine to succeed without factoring timeouts, the certificate $\mathcal{S}$ must cover all prime divisors of the \emph{submitted} discriminant $\Delta(\mathbf{a})$ (including primes dividing $u$). Once $\mathcal{S}$ is registered via \texttt{addprimes(S)}, the WebAssembly worker verifies trial-division completeness against $\Delta(\mathbf{a})$, strips $u^{12}$, and certifies $\log N$ in under 2 seconds.
+\begin{remark}[The \texttt{cs.LO} Certificate Paradigm: Search vs.\ Verification]
+Both the Cremona--Brumer--Silverman 2-descent rank certificate (\texttt{erk\_cert}, Eq.~\eqref{eq:f2_rank_cert}) and the Tate local reduction conductor certificate (\texttt{conductorFromPrimes}, Proposition~\ref{prop:tate_complexity}) embody the core principle of logic in computer science (\texttt{cs.LO}): \emph{replacing intractable or heuristic in-kernel search with a compact, deterministically verifiable algebraic witness}. Our campaign leverages both submission endpoints exposed by the ICARM API: \texttt{POST /api/submit} (supplying \texttt{ainvs}, \texttt{points}, and \texttt{primes} simultaneously for new curves) and \texttt{POST /api/curve/:id/primes} (retroactively certifying missing conductors on existing leaderboard curves).
 \end{remark}
 
-\section{The 4-Stage Werr Multi-Layer Algebraic Sieve}
+\section{The 4-Stage Werr Multi-Layer Algebraic Sieve}\label{sec:werr_sieve}
 
-For high-rank elliptic curves with 70 to 110 digit discriminants, general-purpose integer factorization of $\Delta$ as an unstructured black-box integer is frequently intractable within interactive time limits. To overcome this, we developed the \textbf{4-Stage Werr Multi-Layer Algebraic Sieve}, documented in our Zenodo research monograph \cite{dagli2026zenodo} and summarized in Table~\ref{tab:four_stages}.
+For high-rank elliptic curves with 50 to 110 digit discriminants, treating $|\Delta|$ as an unstructured black-box integer causes standard factoring routines to stall. To overcome this, we developed the \textbf{4-Stage Werr Multi-Layer Algebraic Sieve} \cite{dagli2026zenodo,dagli2026sieve}, which couples elliptic-curve-specific algebraic decompositions (Stages~1--2) with parallel sub-exponential cofactor sieving (Stages~3--4), as summarized in Table~\ref{tab:four_stages}.
 
 \begin{table}[htbp]
 \centering
@@ -194,24 +190,24 @@ For high-rank elliptic curves with 70 to 110 digit discriminants, general-purpos
 \toprule
 \textbf{Pipeline Stage} & \textbf{Algebraic Identity / Method} & \textbf{Target Scale} & \textbf{Mechanism \& Role in Conductor Certification} \\
 \midrule
-\textbf{Stage 1} \newline Algebraic Root \& GCD Kernel & $\gcd(c_4, c_6, \Delta, a_4, a_6, b_2, b_4, b_6)$ \newline Division polynomials $\psi_2(x), \psi_3(x)$ & Smooth towers \& algebraic roots & Extracts common polynomial divisor towers across Weierstrass invariants and locates exact integer roots of monic 2-torsion cubics and 3-torsion quartics via binary/Newton root bracketing. \\
+\textbf{Stage 1} \newline Root-Kernel \& GCD Peeling & $\gcd(a_4, a_6, \Delta, c_4, c_6, b_2, b_4, b_6)$ \newline Division polynomials $\psi_2(x), \psi_3(x)$ & Smooth towers \& algebraic roots & Extracts common polynomial divisor towers across Weierstrass invariants and locates exact integer roots of monic 2-torsion cubics and 3-torsion quartics via derivative-bracketed bisection. \\
 \addlinespace[4pt]
 \textbf{Stage 2} \newline Cubic \& Syzygy Divisor Peeling & $c_4^3 - 1728\Delta = c_6^2 \implies \Delta = d_0 \cdot s^3$ \newline $\Delta = 2^{-12}\prod_{i<j}(X_i - X_j)^2$ & $40$--$110$ digit structured $\Delta$ & Isolates cubic divisor towers $s^3 \mid \gcd(c_4^3, \Delta)$, strips non-minimal scaling factors $u^{12}$, and decomposes 2-torsion discriminants into squares of pairwise root differences $|X_i - X_j|$. \\
 \addlinespace[4pt]
-\textbf{Stage 3} \newline Parallel Pollard $\rho$, $p-1$ \& ECM & Batched Brent $\rho$ ($2.5 \times 10^5$ steps) \newline Montgomery/Weierstrass ECM \newline ($B_1 = 10^5, B_2 = 5 \times 10^6$) & $12$--$32$ digit prime factors & Multi-core worker threads sweep residual composite cofactors in parallel using Montgomery/Weierstrass elliptic curve group law additions modulo $C$ to extract medium-to-large prime factors. \\
+\textbf{Stage 3} \newline Parallel Pollard $\rho$, $p-1$ \& ECM & Batched Brent $\rho$ ($2.5 \times 10^5$ steps) \newline Montgomery/Weierstrass ECM \newline ($B_1 = 10^5, B_2 = 5 \times 10^6$) & $12$--$32$ digit prime factors & Multi-core worker threads sweep residual composite cofactors in parallel using elliptic curve scalar multiplications modulo $C$ to extract medium-to-large prime factors above $10^7$. \\
 \addlinespace[4pt]
-\textbf{Stage 4} \newline Word-Packed $\mathbb{F}_2$ MPQS \& APR-CL & Multipolynomial Quadratic Sieve \newline 64-bit word-packed $\mathbb{F}_2$ Gaussian \newline PARI/GP 2.17.2 APR-CL closure & $60$--$105$ digit composites ($18$--$38$d primes) & Splits remaining balanced composite cofactors via word-packed $\mathbb{F}_2$ nullspace elimination and certifies all prime factors via deterministic APR-CL and Baillie--PSW tests for \texttt{ellglobalred}. \\
+\textbf{Stage 4} \newline Word-Packed $\mathbb{F}_2$ MPQS \& APR-CL & Multipolynomial Quadratic Sieve \newline 64-bit word-packed $\mathbb{F}_2$ Gaussian \newline PARI/GP 2.17.2 APR-CL closure & $60$--$105$ digit composites ($18$--$38$d primes) & Splits remaining balanced composite cofactors via word-packed $\mathbb{F}_2$ nullspace elimination and certifies all prime factors via deterministic APR-CL and Baillie--PSW tests for \texttt{conductorFromPrimes}. \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\subsection{Stage 1: Algebraic Root and Covariant GCD Kernel}
+\subsection{Stage 1: Root-Kernel Covariant GCDs and Division-Polynomial Decomposition}
 
-Before invoking probabilistic or sub-exponential factoring routines, Stage 1 exploits the polynomial dependencies among the Weierstrass coefficients and Tate covariants. Specifically, Stage 1 strips all small primes $p \le 10^5$ via a fast byte-sieve wheel (\texttt{SMALL\_PRIMES}) and computes the mutual greatest common divisors:
+Before invoking probabilistic or sub-exponential factoring routines, Stage~1 strips all small primes $p \le 10^5$ via a fast byte-sieve wheel (\texttt{SMALL\_PRIMES}) and evaluates the mutual greatest common divisors across the Weierstrass coefficients and Tate covariants:
 \begin{equation}
 g_1 = \gcd(|c_4|, |c_6|), \quad g_2 = \gcd(|a_4|, |a_6|), \quad g_3 = \gcd(|b_2|, |b_4|, |b_6|, |b_8|), \quad g_4 = \gcd(|\Delta|, |c_4|, |c_6|).
 \end{equation}
-Whenever $g_k > 1$, Euclidean gcd splitting immediately factors $\Delta$ into smaller coprime components $\Delta / g_k^m$ and $g_k$. Furthermore, when $E$ possesses non-trivial rational torsion, the division polynomials $\psi_n(x)$ impose exact polynomial factorizations on $\Delta$:
+Whenever $g_k > 1$, Euclidean gcd splitting immediately factors $\Delta$ into smaller coprime components $\Delta / g_k^m$ and $g_k$. Furthermore, when $E$ possesses non-trivial rational torsion, the division polynomials $\psi_n(x)$ induce exact polynomial factorizations of $\Delta$:
 
 \begin{proposition}[Algebraic Discriminant Decomposition via Rational 2-Torsion]\label{prop:cubic_peeling}
 Let $E/\mathbb{Q}$ be an integral Weierstrass model possessing at least one rational 2-torsion point $P_0 = (x_0, y_0) \in E(\mathbb{Q})[2] \setminus \{O\}$. Then $X_0 = 4x_0 \in \mathbb{Z}$ is an integer root of the monic cubic polynomial
@@ -222,49 +218,49 @@ Factoring $f(X) = (X - X_0)(X^2 + \alpha X + \beta)$ with $\alpha = B_2 + X_0 \i
 \begin{equation}\label{eq:delta_peel}
 \Delta(E) = 2^{-12} \cdot (\alpha^2 - 4\beta) \cdot (3X_0^2 + 2B_2 X_0 + B_4)^2.
 \end{equation}
-In particular, if $E(\mathbb{Q})[2] \cong \mathbb{Z}/2\mathbb{Z} \times \mathbb{Z}/2\mathbb{Z}$ with three integer roots $X_0, X_1, X_2$ of $f(X)$, then $\Delta(E)$ splits completely into the square of the pairwise root differences:
+In particular, if $E(\mathbb{Q})[2] \cong \mathbb{Z}/2\mathbb{Z} \times \mathbb{Z}/2\mathbb{Z}$ with three integer roots $X_0, X_1, X_2 \in \mathbb{Z}$ of $f(X)$, then $\Delta(E)$ splits completely into the square of the pairwise root differences:
 \begin{equation}\label{eq:delta_full_2tors}
 \Delta(E) = 2^{-12} \cdot (X_0 - X_1)^2 (X_0 - X_2)^2 (X_1 - X_2)^2.
 \end{equation}
 \end{proposition}
 
 \begin{proof}
-A point $P_0 = (x_0, y_0)$ satisfies $2P_0 = O$ if and only if $2y_0 + a_1 x_0 + a_3 = 0$. Completing the square in the Weierstrass equation~\eqref{eq:weierstrass} yields $(2y + a_1 x + a_3)^2 = 4x^3 + b_2 x^2 + 2b_4 x + b_6$. Multiplying by $16$ and substituting $X = 4x$ produces the monic integer polynomial $f(X) = X^3 + B_2 X^2 + B_4 X + B_6$. By Gauss's Lemma, any rational root of $f(X)$ is an integer $X_0 \in \mathbb{Z}$. The polynomial discriminant of $f(X)$ is $\mathrm{Disc}(f) = 2^{12} \Delta(E)$. For a factored polynomial $f(X) = (X - X_0) q(X)$, the resultant identity $\mathrm{Disc}(f) = \mathrm{Disc}(q) \cdot q(X_0)^2 = (\alpha^2 - 4\beta) (f'(X_0))^2$ yields~\eqref{eq:delta_peel} and~\eqref{eq:delta_full_2tors}.
+A point $P_0 = (x_0, y_0)$ satisfies $2P_0 = O$ if and only if $2y_0 + a_1 x_0 + a_3 = 0$. Completing the square in~\eqref{eq:weierstrass} gives $(2y + a_1 x + a_3)^2 = 4x^3 + b_2 x^2 + 2b_4 x + b_6$. Multiplying by $16$ and setting $X = 4x$ yields the monic integer cubic $f(X) = X^3 + B_2 X^2 + B_4 X + B_6$. By Gauss's Lemma, any rational root of $f(X)$ is an integer $X_0 \in \mathbb{Z}$. Since $\mathrm{Disc}(f) = 2^{12} \Delta(E)$, applying the resultant identity $\mathrm{Disc}((X - X_0)q(X)) = \mathrm{Disc}(q) \cdot f'(X_0)^2$ yields~\eqref{eq:delta_peel} and~\eqref{eq:delta_full_2tors}.
 \end{proof}
 
-Crucially, finding the integer roots $X_0 \in \mathbb{Z}$ of $f(X)$ requires \emph{zero integer factorization}: since $f(X)$ is a cubic with at most two real local extrema, Stage 1 computes the overflow-safe bit-length bound $M = 2^{\max(\mathrm{bits}(B_2), \mathrm{bits}(B_4)/2, \mathrm{bits}(B_6)/3) + 4}$ and locates all integer roots in $O(\log |B_6|)$ arithmetic operations via exact integer bisection (\texttt{integer\_roots\_monic\_cubic}). For curves with full 2-torsion $\mathbb{Z}/2\mathbb{Z} \times \mathbb{Z}/2\mathbb{Z}$ (such as the 110-digit discriminant curve \texttt{\#4383}), identity~\eqref{eq:delta_full_2tors} immediately reduces the problem of factoring a 110-digit integer $|\Delta|$ to factoring three integers $|X_i - X_j|$ of at most 18--20 digits each!
+Crucially, finding the integer roots $X_0 \in \mathbb{Z}$ of $f(X)$ requires \emph{zero integer factorization}: Stage~1 computes the Cauchy bit-length bound $M = 2^{\max_i(\lceil\mathrm{bits}(|c_i|)/i\rceil) + 3}$, brackets the real critical points of $f'(X)$ recursively, and locates all integer roots in $O(\log |B_6|)$ arithmetic operations via exact integer bisection (\texttt{integer\_roots\_monic\_cubic}). For curves with full 2-torsion $\mathbb{Z}/2\mathbb{Z} \times \mathbb{Z}/2\mathbb{Z}$ (such as the 110-digit discriminant curve \texttt{\#4383}), identity~\eqref{eq:delta_full_2tors} immediately reduces the problem of factoring a 110-digit integer $|\Delta|$ to factoring three root-difference integers $|X_i - X_j|$ of at most 18--20 digits each!
 
 \subsection{Stage 2: Elliptic Syzygy and Cubic Divisor Peeling}
 
-For curves with trivial 2-torsion ($E(\mathbb{Q})[2] = \{O\}$), Stage 2 exploits the fundamental elliptic syzygy:
+For curves with trivial 2-torsion ($E(\mathbb{Q})[2] = \{O\}$), Stage~2 exploits the fundamental Weierstrass syzygy:
 \begin{equation}
 c_4^3 - 1728 \Delta = c_6^2 \implies c_4^3 \equiv c_6^2 \pmod{1728 \Delta}.
 \end{equation}
-Any prime $p \ge 5$ dividing both $c_4$ and $\Delta$ (primes of additive reduction) satisfies $p^3 \mid c_4^3$ and $p^2 \mid c_6^2$, allowing Stage 2 to isolate cubic and square divisor factors $\Delta = d_0 \cdot s^3$ via iterated $\gcd(\Delta, c_4^3)$ and exact integer root extraction $\mathtt{isqrt}(curr)$. Similarly, when an unreduced or V\'{e}lu-transported model has $\Delta_{\text{sub}} = u^{12} \Delta_{\min}$, Stage 2 peels the 12th-power scaling factor $u^{12}$ by computing $\gcd(c_4^3, c_6^2, \Delta)$.
+Any prime $p \ge 5$ dividing both $c_4$ and $\Delta$ (primes of additive reduction) satisfies $p^3 \mid c_4^3$ and $p^2 \mid c_6^2$, allowing Stage~2 to isolate cubic and square divisor towers $\Delta = d_0 \cdot s^3$ via iterated $\gcd(\Delta, c_4^3)$ and exact integer square-root peeling $\mathtt{isqrt}(C)$. Moreover, when a model produced by fibration specialization or V\'{e}lu transport is non-minimal with scaling factor $u = 2^\alpha 3^\beta p_1^{\gamma_1} \cdots p_m^{\gamma_m}$, Stage~2 extracts $u^{12} \mid \gcd(c_4^3, c_6^2, \Delta)$ via \texttt{approx\_minimal\_c4\_c6\_disc}, peeling the 12th-power scaling factor prior to cofactor sieving.
 
-\subsection{Stage 3: Parallel Pollard $\rho$, Pollard $p-1$, and Multi-Curve ECM}
+\subsection{\texorpdfstring{Stage 3: Parallel Pollard $\rho$, Pollard $p-1$, and Multi-Curve ECM}{Stage 3: Parallel Pollard rho, Pollard p-1, and Multi-Curve ECM}}
 
-Each remaining composite cofactor $C > 1$ (after checking deterministic primality via \texttt{is\_probable\_prime} and exact square peeling \texttt{isqrt}) is pushed onto a factorization work-stack and processed by Stage 3:
+Each remaining composite cofactor $C > 1$ (after deterministic Miller--Rabin primality testing across all 12 bases $a \in \{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37\}$ and exact square peeling) is pushed onto a factorization work-stack and processed by Stage~3:
 \begin{enumerate}[leftmargin=2em]
-    \item \textbf{Batched Pollard--Brent $\rho$:} Workers execute Brent's cycle-finding improvement to Pollard's $\rho$ algorithm with polynomial transition $x \mapsto (x^2 + c) \bmod C$, accumulating modular products in batches of $128$ steps before computing $\gcd(\prod |x_i - y_i|, C)$ up to $2.5 \times 10^5$ iterations. This rapidly strips all prime factors up to $14$--$16$ decimal digits.
-    \item \textbf{Multi-Curve Weierstrass/Montgomery ECM (\texttt{ecm\_stage1}):} For cofactors containing $15$ to $32$ digit primes, Stage 3 launches parallel Lenstra Elliptic Curve Method (ECM) workers \cite{lenstra1987factoring}. Each worker generates random curves $E_a: y^2 = x^3 + ax + b \pmod C$ passing through a random initial point $P_0 = (x_0, y_0) \bmod C$ by setting $b \equiv y_0^2 - x_0^3 - a x_0 \pmod C$, checks $\gcd(4a^3 + 27b^2, C)$, and multiplies $P_0$ by prime powers $p^k \le B_1$ ($B_1 = 10^5$, Stage 2 bound $B_2 = 5 \times 10^6$). Whenever a projective denominator $2y_Q$ or $(x_Q - x_R)$ shares a non-trivial factor with $C$, the modular inverse exception $\gcd(\mathrm{den}, C) \in (1, C)$ immediately yields a prime factor of $C$.
+    \item \textbf{Batched Pollard--Brent $\rho$ (\texttt{brent\_rho}):} Workers execute Brent's cycle-finding improvement to Pollard's $\rho$ algorithm with polynomial transition $x \mapsto (x^2 + c) \bmod C$, accumulating modular differences $\prod (x - y) \bmod C$ in batches of $128$ steps before computing $\gcd(\text{prod}, C)$ up to $2.5 \times 10^5$ iterations. This strips prime factors up to $15$--$16$ decimal digits in milliseconds.
+    \item \textbf{Multi-Curve Weierstrass/Montgomery ECM (\texttt{ecm\_stage1}):} For cofactors containing $15$ to $32$ digit primes above ICARM's $10^7$ auto-factor bound, Stage~3 launches parallel Lenstra Elliptic Curve Method (ECM) sweeps \cite{lenstra1987factoring}. Each trial selects random $(x_0, y_0, a) \in (\mathbb{Z}/C\mathbb{Z})^3$, sets $b \equiv y_0^2 - x_0^3 - a x_0 \pmod C$, checks $\gcd(4a^3 + 27b^2, C)$, and multiplies $P_0 = (x_0, y_0)$ by prime powers $p^k \le B_1$ ($B_1 = 10^4\text{--}10^5$, Stage~2 continuation $B_2 = 5 \times 10^6$). Whenever an affine chord/tangent denominator $(x_Q - x_R)$ or $2y_Q$ is non-invertible modulo $C$, $\gcd(\mathrm{den}, C) \in (1, C)$ immediately yields a prime factor of $C$.
 \end{enumerate}
 
-\subsection{Stage 4: Word-Packed $\mathbb{F}_2$ MPQS and PARI/GP 2.17.2 Closure}
+\subsection{\texorpdfstring{Stage 4: Word-Packed $\mathbb{F}_2$ MPQS and PARI/GP 2.17.2 Closure}{Stage 4: Word-Packed F2 MPQS and PARI/GP 2.17.2 Closure}}
 
-When a composite cofactor $C$ of $60$ to $130$ bits resists ECM (typically a balanced semiprime product of two $18$ to $22$ digit primes, as in the 74-digit discriminant of the Rank $\ge 19$ curve \texttt{\#4323}), Stage 4 invokes our Word-Packed $\mathbb{F}_2$ Multipolynomial Quadratic Sieve (\texttt{solve\_word\_packed\_f2\_qs}) and PARI/GP 2.17.2 MPQS closure:
+When a composite cofactor $C$ of $60$ to $130$ bits resists ECM (such as balanced products of $18$ to $22$ digit primes in the 74-digit discriminant of the Rank $\ge 19$ curve \texttt{\#4323}), Stage~4 invokes the Werr 4-Pillar Word-Packed $\mathbb{F}_2$ Multipolynomial Quadratic Sieve (\texttt{solve\_word\_packed\_f2\_qs} from \cite{dagli2026sieve}) and PARI/GP 2.17.2 MPQS/APR-CL closure:
 \begin{itemize}[leftmargin=2em]
-    \item Polynomials $Q(x) = (Ax + B)^2 - C$ are sieved over the factor base $\mathcal{B} = \{p \le B_{\max} : (\frac{C}{p}) = 1\}$ using Tonelli--Shanks modular square roots.
+    \item Polynomials $Q(x) = (Ax + B)^2 - C$ are sieved over the quadratic-residue factor base $\mathcal{F} = \{p \le B_{\max} : (\frac{C}{p}) = 1\}$ using Tonelli--Shanks modular square roots.
     \item Smooth exponent vectors modulo $2$ are packed into 64-bit machine words (\texttt{uint64}), and $\mathbb{F}_2$-nullspace dependencies are extracted via bitwise MSB-pivot Gaussian elimination to construct $X^2 \equiv Y^2 \pmod C$, yielding $\gcd(X - Y, C) = p$.
-    \item Every extracted factor is certified prime via deterministic Miller--Rabin / Baillie--PSW and APR-CL primality tests, producing the sorted bad-prime certificate $\mathcal{S} = \{p_1, \dots, p_k\}$ ready for ICARM API submission.
+    \item Every extracted factor is certified prime via deterministic APR-CL / Baillie--PSW tests, producing the complete bad-prime certificate $\mathcal{S} = \{p_1, \dots, p_k\}$ verified by ICARM's \texttt{conductorFromPrimes}.
 \end{itemize}
 
-Table~\ref{tab:sieve_benchmarks} presents concrete factorization results from our 230 certified curves, illustrating how the 4-stage pipeline resolves both 110-digit multi-factor discriminants and 30-to-38 digit prime factors at ranks $r \in [12, 19]$.
+Table~\ref{tab:sieve_benchmarks} presents representative high-rank discriminant factorizations from our 230 certified curves, illustrating how the 4-stage pipeline resolves both 110-digit multi-factor discriminants and 30-to-38 digit prime factors at ranks $r \in [12, 19]$.
 
 \begin{table}[htbp]
 \centering
 \scriptsize
-\setlength{\tabcolsep}{3.0pt}
+\setlength{\tabcolsep}{2.4pt}
 \caption{Representative High-Rank Discriminant Factorizations Certified by the 4-Stage Werr Sieve}
 \label{tab:sieve_benchmarks}
 \begin{tabular}{llrrrrrlr}
@@ -287,105 +283,115 @@ Table~\ref{tab:sieve_benchmarks} presents concrete factorization results from ou
 \end{tabular}
 \end{table}
 
-\section{V\'{e}lu Rational Isogeny Graph Transport and Minimal Model Search}
+\section{\texorpdfstring{V\'{e}lu Rational Isogeny Graph Transport and Minimal Model Search}{Velu Rational Isogeny Graph Transport and Minimal Model Search}}\label{sec:velu_engine}
 
 While the 4-Stage Werr Algebraic Sieve resolves the conductor certification bottleneck ($\log N$), our second engine exploits the geometry of rational isogeny graphs to discover strictly smaller minimal Weierstrass models and populate adjacent torsion leaderboards.
 
-\subsection{Invariance of Rank and Conductor Across $\mathbb{Q}$-Isogeny Orbits}
+\subsection{\texorpdfstring{Invariance of Rank and Conductor Across $\mathbb{Q}$-Isogeny Orbits}{Invariance of Rank and Conductor Across Q-Isogeny Orbits}}
 
-Let $E/\mathbb{Q}$ and $E'/\mathbb{Q}$ be elliptic curves connected by a non-constant $\mathbb{Q}$-rational isogeny $\phi: E \to E'$ of degree $n = |\ker \phi|$. Let $\hat{\phi}: E' \to E$ denote the dual isogeny satisfying $\hat{\phi} \circ \phi = [n]_E$ and $\phi \circ \hat{\phi} = [n]_{E'}$.
+Let $E/\mathbb{Q}$ and $E'/\mathbb{Q}$ be elliptic curves connected by a non-constant $\mathbb{Q}$-rational isogeny $\phi: E \to E'$ of degree $n = |\ker \phi|$, with dual isogeny $\hat{\phi}: E' \to E$ satisfying $\hat{\phi} \circ \phi = [n]_E$ and $\phi \circ \hat{\phi} = [n]_{E'}$.
 
-\begin{theorem}[Invariance of Rank, Conductor, and $L$-Function under $\mathbb{Q}$-Isogeny]\label{thm:isogeny_invariance}
+\begin{theorem}[Invariance of Rank, Conductor, and Bad Primes under $\mathbb{Q}$-Isogeny]\label{thm:isogeny_invariance}
 Let $\phi: E \to E'$ be a $\mathbb{Q}$-rational isogeny between elliptic curves over $\mathbb{Q}$. Then:
 \begin{enumerate}[noitemsep]
     \item \textbf{Mordell--Weil Rank Invariance:} $\phi$ induces a $\mathbb{Q}$-linear isomorphism $E(\mathbb{Q}) \otimes_{\mathbb{Z}} \mathbb{Q} \xrightarrow{\sim} E'(\mathbb{Q}) \otimes_{\mathbb{Z}} \mathbb{Q}$, so $\mathrm{rank}(E'(\mathbb{Q})) = \mathrm{rank}(E(\mathbb{Q}))$.
-    \item \textbf{Conductor and Bad Prime Invariance:} By the N\'{e}ron--Ogg--Shafarevich criterion and Tate's isogeny theorem, the $\ell$-adic Galois representations $V_\ell(E) \cong V_\ell(E')$ are isomorphic as $\mathrm{Gal}(\overline{\mathbb{Q}}/\mathbb{Q})$-modules. Consequently, $E$ and $E'$ have the exact same set of bad primes $\mathcal{S}$, the same global arithmetic conductor $N(E') = N(E)$, and identical Hasse--Weil $L$-functions $L(E', s) = L(E, s)$.
+    \item \textbf{Conductor and Bad-Prime Certificate Reuse:} By the N\'{e}ron--Ogg--Shafarevich criterion and Faltings' isogeny theorem, $V_\ell(E) \cong V_\ell(E')$ as $\mathrm{Gal}(\overline{\mathbb{Q}}/\mathbb{Q})$-modules. Consequently, $E$ and $E'$ have the exact same set of bad primes $\mathcal{B}$, the same global arithmetic conductor $N(E') = N(E)$, and identical $L$-functions $L(E', s) = L(E, s)$. In particular, any prime certificate $\mathcal{S}$ valid for $E$ (augmented by $\{2, 3\}$ for scaling factors) immediately certifies $N(E')$ via \texttt{conductorFromPrimes}!
 \end{enumerate}
 \end{theorem}
 
-Crucially, however, the \emph{minimal discriminant} $|\Delta(E')|$, the \emph{Faltings height} $h_F(E')$, and the \emph{naive height} $h_{\text{naive}}(E') = \log \max(|c_4|^3, c_6^2)$ are \textbf{not} invariant under isogeny! For a prime $\ell$-isogeny $\phi: E \to E'$, a multiplicative fiber of Kodaira type $\mathrm{I}_m$ at a prime $p \mid N$ transitions either to $\mathrm{I}_{m \cdot \ell}$ or to $\mathrm{I}_{m / \ell}$, multiplying or dividing $|\Delta_{\min}|$ by $\ell^m$ across multiple primes while shifting the Faltings height via Faltings' isogeny degree formula.
+Crucially, however, the \emph{minimal discriminant} $|\Delta_{\min}(E')|$, the \emph{Faltings height} $h_F(E')$, the \emph{naive height} $h_{\text{naive}}(E')$, and the \emph{rational torsion subgroup} $E'(\mathbb{Q})_{\text{tors}}$ are \textbf{not} invariant under isogeny. Under a prime $\ell$-isogeny $\phi: E \to E'$, a multiplicative fiber of Kodaira type $\mathrm{I}_m$ at $p \mid N$ transitions either to $\mathrm{I}_{m \cdot \ell}$ or to $\mathrm{I}_{m / \ell}$, multiplying or dividing $|\Delta_{\min}|$ by $\ell^m$ across multiple primes while shifting the real period lattice covolume and Faltings height.
 
-\subsection{Explicit V\'{e}lu Quotient Equations and Generator Point Transport}
+\subsection{\texorpdfstring{Explicit V\'{e}lu Quotient Equations for $n$-Isogenies and Pure-$\mathbb{Q}$ 3-Isogenies}{Explicit Velu Quotient Equations for n-Isogenies and Pure-Q 3-Isogenies}}
 
-Let $G \subset E(\mathbb{Q})$ be a finite $\mathrm{Gal}(\overline{\mathbb{Q}}/\mathbb{Q})$-stable subgroup of order $n$. Following V\'{e}lu \cite{velu1971isogenies}, we partition the non-zero elements $G \setminus \{O\} = G_2 \sqcup G_+ \sqcup G_-$, where $G_2 = \{Q \in G \setminus \{O\} : 2Q = O\}$ consists of the 2-torsion points in $G$, and each inverse pair $\{Q, -Q\}$ of order $> 2$ has one representative in $G_+$ and one in $G_-$. Setting $S = G_2 \sqcup G_+$, for each $Q = (x_Q, y_Q) \in S$ we compute in exact rational arithmetic (\texttt{fractions.Fraction}):
+Let $G \subset E(\overline{\mathbb{Q}})$ be a finite $\mathrm{Gal}(\overline{\mathbb{Q}}/\mathbb{Q})$-stable subgroup of order $n$. Following V\'{e}lu \cite{velu1971isogenies}, we partition $G \setminus \{O\} = G_2 \sqcup G_+ \sqcup G_-$, where $G_2 = \{Q \in G \setminus \{O\} : 2Q = O\}$ and each inverse pair $\{Q, -Q\}$ of order $> 2$ has one representative in $G_+$ and one in $G_-$. Setting $S = G_2 \sqcup G_+$, for each $Q = (x_Q, y_Q) \in S$ our engine (\texttt{werr\_elliptic\_rank\_engine.py}) computes in exact rational arithmetic (\texttt{fractions.Fraction}):
 \begin{align}
 g_Q^x &= 3 x_Q^2 + 2 a_2 x_Q + a_4 - a_1 y_Q, \qquad g_Q^y = -2 y_Q - a_1 x_Q - a_3, \\
 t_Q &= \begin{cases} g_Q^x & \text{if } Q \in G_2, \\ 2 g_Q^x - a_1 g_Q^y & \text{if } Q \in G_+, \end{cases} \qquad u_Q = (g_Q^y)^2, \qquad w_Q = u_Q + x_Q t_Q.
 \end{align}
-Summing $t = \sum_{Q \in S} t_Q$ and $w = \sum_{Q \in S} w_Q$, the quotient curve $E' = E/G$ is given by the Weierstrass model $\mathbf{A} = [A_1, A_2, A_3, A_4, A_6]$:
-\begin{equation}\label{eq:velu_coeffs}
-A_1 = a_1, \quad A_2 = a_2, \quad A_3 = a_3, \quad A_4 = a_4 - 5t, \quad A_6 = a_6 - b_2 t - 7w.
-\end{equation}
-Simultaneously, for every independent Mordell--Weil generator $P_j = (x_j, y_j) \in \mathcal{P}$ on $E(\mathbb{Q})$, our engine transports $P_j$ across the isogeny via the exact rational map $\phi(P_j) = (X_j, Y_j) \in E'(\mathbb{Q})$:
+Summing $t = \sum_{Q \in S} t_Q$ and $w = \sum_{Q \in S} w_Q$, the quotient curve $E' = E/G$ is given by $\mathbf{A} = [a_1, a_2, a_3, a_4 - 5t, a_6 - b_2 t - 7w]$, and every independent Mordell--Weil generator $P_j = (x_j, y_j) \in \mathcal{P}$ is transported via the exact rational map $\phi(P_j) = (X_j, Y_j) \in E'(\mathbb{Q})$:
 \begin{equation}\label{eq:velu_transport}
 X_j = x_j + \sum_{Q \in G \setminus \{O\}} \left( x(P_j + Q) - x(Q) \right), \qquad Y_j = y_j + \sum_{Q \in G \setminus \{O\}} \left( y(P_j + Q) - y(Q) \right).
 \end{equation}
-When a rational subgroup $G$ of order $3$ is generated by a root $x_0 \in \mathbb{Q}$ of the 3-division polynomial $\psi_3(x) = 3x^4 + b_2 x^3 + 3b_4 x^2 + 3b_6 x + b_8 = 0$ whose $y$-coordinate $y_0$ lies in a quadratic extension $\mathbb{Q}(\sqrt{d})$, note that $t_Q = 2g_Q^x - a_1 g_Q^y$ and $u_Q = (g_Q^y)^2$ depend only on $x_0$ and $(2y_0 + a_1 x_0 + a_3)^2 = 4x_0^3 + b_2 x_0^2 + 2b_4 x_0 + b_6 \in \mathbb{Q}$! Thus, our 3-isogeny engine (\texttt{velu\_3isogeny\_from\_x0}) evaluates both $E/G$ and the transported rational points $\phi(P_j)$ purely over $\mathbb{Q}$ without ever instantiating $\mathbb{Q}(\sqrt{d})$.
 
-When the coordinates of $Q \in G \setminus \{O\}$ have rational denominators (e.g., $x_0 = X_0 / 4$), our engine clears denominators via the minimal scaling factor $u = 2^\alpha 3^\beta$ such that
+For rational 3-isogenies (\texttt{submit\_mu3\_breakthroughs.py}), a $\mathrm{Gal}(\overline{\mathbb{Q}}/\mathbb{Q})$-stable subgroup $G = \{O, Q, -Q\}$ of order $3$ corresponds to a rational root $x_0 = X_0 / 3 \in \mathbb{Q}$ of the 3-division polynomial $\psi_3(x) = 3x^4 + b_2 x^3 + 3b_4 x^2 + 3b_6 x + b_8 = 0$, where $X_0 \in \mathbb{Z}$ is an integer root of the monic quartic
 \begin{equation}
-\tilde{A}_1 = u A_1, \quad \tilde{A}_2 = u^2 A_2, \quad \tilde{A}_3 = u^3 A_3, \quad \tilde{A}_4 = u^4 A_4, \quad \tilde{A}_6 = u^6 A_6 \in \mathbb{Z},
+P_4(X) = X^4 + b_2 X^3 + 9b_4 X^2 + 27b_6 X + 27b_8 = 0.
 \end{equation}
-and scales every transported generator accordingly via $(\tilde{X}_j, \tilde{Y}_j) = (u^2 X_j, u^3 Y_j)$.
-
-\subsection{Point-Interpolation Recovery and Cross-Torsion Isogeny Transitions}
-
-In several archival web pages (such as Dujella's historical subpages \texttt{z2z2old*.html} and \texttt{z6old*.html}), high-rank records are listed only by their independent generator points $\{P_1, \dots, P_r\}$ without explicit Weierstrass coefficients $[a_1, a_2, a_3, a_4, a_6]$. Our pipeline recovers the exact Weierstrass equation by solving the linear system over $\mathbb{Q}$:
+Observe that $t_Q = 2g_Q^x - a_1 g_Q^y = 6x_0^2 + b_2 x_0 + b_4$ and $u_Q = (g_Q^y)^2 = 4x_0^3 + b_2 x_0^2 + 2b_4 x_0 + b_6$ depend \emph{only on $x_0 \in \mathbb{Q}$} and not on $y_0 \in \mathbb{Q}(\sqrt{u_Q})$! Consequently, our function \texttt{velu\_3isogeny\_from\_x0} evaluates both $E/G$ and the transported generator coordinates purely over $\mathbb{Q}$:
 \begin{equation}
-y_j x_j a_1 - x_j^2 a_2 + y_j a_3 - x_j a_4 - a_6 = x_j^3 - y_j^2 \quad (1 \le j \le r),
+\begin{aligned}
+X_j &= x_j + \frac{t_Q}{x_j - x_0} + \frac{u_Q}{(x_j - x_0)^2}, \\
+Y_j &= \frac{1}{2}\left((2y_j + a_1 x_j + a_3)\left(1 - \frac{t_Q}{(x_j - x_0)^2} - \frac{2u_Q}{(x_j - x_0)^3}\right) - a_1 X_j - a_3\right).
+\end{aligned}
 \end{equation}
-verifying that all $r$ points lie on the reconstructed curve, and then expanding the curve across its rational 2- and 3-isogeny graph. Table~\ref{tab:isogeny_curves} lists the 8 certified Top-10 curves in our dataset obtained explicitly via V\'{e}lu rational 2-isogeny transport across torsion classes ($\mathbb{Z}/4\mathbb{Z} \to \mathbb{Z}/2\mathbb{Z} \times \mathbb{Z}/2\mathbb{Z}$, $\mathbb{Z}/4\mathbb{Z} \to \mathbb{Z}/2\mathbb{Z} \times \mathbb{Z}/4\mathbb{Z}$, $\mathbb{Z}/6\mathbb{Z} \to \mathbb{Z}/6\mathbb{Z}$, and $\mathbb{Z}/2\mathbb{Z} \to \mathbb{Z}/2\mathbb{Z}$).
+Furthermore, if $u_Q \notin (\mathbb{Q}^\times)^2$ but $-3u_Q \in (\mathbb{Q}^\times)^2$, then $G \cong \mu_3$ has trivial rational 3-torsion on $E(\mathbb{Q})$, whereas the dual kernel $\hat{G} \subset E'(\mathbb{Q})[3]$ is generated by a \emph{rational} point of order $3$, transporting a trivial-torsion curve directly onto the $T = \mathbb{Z}/3\mathbb{Z}$ leaderboard!
+
+\subsection{12-Case Normalized Weierstrass Point-Interpolation Recovery}
+
+In our campaign across 30 archival subpages of Dujella's database \cite{dujella2024highrank} and 29 markdown tables of Rubinstein's repository \cite{rubinstein2024tables}, numerous high-rank records (such as \texttt{z2z2old*.html} and \texttt{z6old*.html}) list the independent generator points $\{P_1, \dots, P_r\}$ without explicit 5-tuple Weierstrass coefficients $[a_1, a_2, a_3, a_4, a_6]$. Our finalizer engine (\texttt{recover\_ainvs\_from\_points\_and\_text} in \texttt{master\_werr\_campaign\_finalizer.py}) reconstructs the exact Weierstrass model via a two-tier exact solver over $\mathbb{Q}$:
+\begin{enumerate}[leftmargin=2em]
+    \item \textbf{Tier 1 (12-Case Normalized Minimal Scan):} Since every global minimal model over $\mathbb{Q}$ satisfies $(a_1, a_2, a_3) \in \{0, 1\} \times \{-1, 0, 1\} \times \{0, 1\}$, for each of the $2 \times 3 \times 2 = 12$ normalized triples and two points $P_1, P_2$ with $x_1 \neq x_2$, the engine solves the exact $2 \times 2$ linear system
+    \begin{equation}
+    a_4 = \frac{C(P_1) - C(P_2)}{x_1 - x_2}, \quad a_6 = C(P_1) - a_4 x_1, \quad C(x, y) := y^2 + a_1 x y + a_3 y - x^3 - a_2 x^2,
+    \end{equation}
+    and verifies whether $a_4, a_6 \in \mathbb{Z}$ and $\mathtt{on\_curve}(\mathbf{a}, P_j)$ holds for all $1 \le j \le r$.
+    \item \textbf{Tier 2 (Full $5 \times 5$ Exact Rational Gaussian Elimination):} If the archival points are given on a non-normalized coordinate model (when $r \ge 5$), the engine solves the $5 \times 5$ linear system $y_j x_j a_1 - x_j^2 a_2 + y_j a_3 - x_j a_4 - a_6 = x_j^3 - y_j^2$ in \texttt{fractions.Fraction} and scales to integers via \texttt{scale\_to\_integer\_ainvs}.
+\end{enumerate}
+
+Table~\ref{tab:isogeny_curves} lists the 8 certified Top-10 curves in our dataset obtained explicitly via V\'{e}lu rational 2-isogeny transport across torsion classes ($\mathbb{Z}/4\mathbb{Z} \to \mathbb{Z}/2\mathbb{Z} \times \mathbb{Z}/2\mathbb{Z}$, $\mathbb{Z}/4\mathbb{Z} \to \mathbb{Z}/2\mathbb{Z} \times \mathbb{Z}/4\mathbb{Z}$, $\mathbb{Z}/6\mathbb{Z} \to \mathbb{Z}/6\mathbb{Z}$, and $\mathbb{Z}/2\mathbb{Z} \to \mathbb{Z}/2\mathbb{Z}$).
 
 \begin{table}[htbp]
 \centering
 \scriptsize
-\setlength{\tabcolsep}{3.2pt}
+\setlength{\tabcolsep}{2.2pt}
 \caption{Certified Top-10 Leaderboard Curves Obtained via Explicit V\'{e}lu Rational 2-Isogeny Transport}
 \label{tab:isogeny_curves}
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{llclrrrrl}
 \toprule
 \textbf{Curve ID} & \textbf{Target $T$} & \textbf{Rank} & \textbf{Source Family \& Torsion Transition} & \textbf{$\log N$} & \textbf{$|\Delta|$ Dig.} & \textbf{$h_F(E)$} & \textbf{$h_{\text{naive}}$} & \textbf{Minimal Model $[a_1, a_2, a_3, a_4, \dots]$} \\
 \midrule
 \href{https://elliptic-rank.icarm.cloud/curve/4309}{\textbf{\#4309}} & $\mathbb{Z}/2\mathbb{Z}$ & $\ge 9$ & 2-Isog.\ of \texttt{2-9.ec} ($\mathbb{Z}/2\mathbb{Z} \to \mathbb{Z}/2\mathbb{Z}$) & $47.13$ & $32\text{ d}$ & $4.75$ & $80.18$ & $[1, 1, 0, 8425949699, \dots]$ \\
-\href{https://elliptic-rank.icarm.cloud/curve/4385}{\textbf{\#4385}} & $\mathbb{Z}/2\mathbb{Z} \times \mathbb{Z}/2\mathbb{Z}$ & $\ge 9$ & 2-Isog.\ of \texttt{family\_Z4\#49} ($\mathbb{Z}/4\mathbb{Z} \to [2,2]$) & $64.14$ & $66\text{ d}$ & $11.80$ & $170.32$ & $[0, 0, 0, -94351638785298\dots]$ \\
-\href{https://elliptic-rank.icarm.cloud/curve/4310}{\textbf{\#4310}} & $\mathbb{Z}/2\mathbb{Z} \times \mathbb{Z}/2\mathbb{Z}$ & $\ge 8$ & 2-Isog.\ of \texttt{4-8.ec} ($\mathbb{Z}/4\mathbb{Z} \to [2,2]$) & $48.33$ & $52\text{ d}$ & $8.59$ & $128.31$ & $[1, 0, 0, -78140864021061\dots]$ \\
-\href{https://elliptic-rank.icarm.cloud/curve/4387}{\textbf{\#4387}} & $\mathbb{Z}/6\mathbb{Z}$ & $\ge 8$ & 2-Isog.\ of \texttt{z6old678\#123} ($\mathbb{Z}/6\mathbb{Z} \to \mathbb{Z}/6\mathbb{Z}$) & $60.19$ & $78\text{ d}$ & $13.64$ & $186.41$ & $[0, 1, 0, 166901229740389\dots]$ \\
-\href{https://elliptic-rank.icarm.cloud/curve/4390}{\textbf{\#4390}} & $\mathbb{Z}/6\mathbb{Z}$ & $\ge 8$ & 2-Isog.\ of \texttt{z6old678\#124} ($\mathbb{Z}/6\mathbb{Z} \to \mathbb{Z}/6\mathbb{Z}$) & $61.45$ & $86\text{ d}$ & $15.48$ & $213.72$ & $[1, -1, 0, -1813293615269\dots]$ \\
+\href{https://elliptic-rank.icarm.cloud/curve/4385}{\textbf{\#4385}} & $\mathbb{Z}/2\mathbb{Z} \times \mathbb{Z}/2\mathbb{Z}$ & $\ge 9$ & 2-Isog.\ of \texttt{family\_Z4\#49} ($\mathbb{Z}/4\mathbb{Z} \to [2,2]$) & $64.14$ & $66\text{ d}$ & $11.80$ & $170.32$ & $[0, 0, 0, -943516387852\dots]$ \\
+\href{https://elliptic-rank.icarm.cloud/curve/4310}{\textbf{\#4310}} & $\mathbb{Z}/2\mathbb{Z} \times \mathbb{Z}/2\mathbb{Z}$ & $\ge 8$ & 2-Isog.\ of \texttt{4-8.ec} ($\mathbb{Z}/4\mathbb{Z} \to [2,2]$) & $48.33$ & $52\text{ d}$ & $8.59$ & $128.31$ & $[1, 0, 0, -781408640210\dots]$ \\
+\href{https://elliptic-rank.icarm.cloud/curve/4387}{\textbf{\#4387}} & $\mathbb{Z}/6\mathbb{Z}$ & $\ge 8$ & 2-Isog.\ of \texttt{z6old678\#123} ($\mathbb{Z}/6\mathbb{Z} \to \mathbb{Z}/6\mathbb{Z}$) & $60.19$ & $78\text{ d}$ & $13.64$ & $186.41$ & $[0, 1, 0, 166901229740\dots]$ \\
+\href{https://elliptic-rank.icarm.cloud/curve/4390}{\textbf{\#4390}} & $\mathbb{Z}/6\mathbb{Z}$ & $\ge 8$ & 2-Isog.\ of \texttt{z6old678\#124} ($\mathbb{Z}/6\mathbb{Z} \to \mathbb{Z}/6\mathbb{Z}$) & $61.45$ & $86\text{ d}$ & $15.48$ & $213.72$ & $[1, -1, 0, -18132936152\dots]$ \\
 \href{https://elliptic-rank.icarm.cloud/curve/4308}{\textbf{\#4308}} & $\mathbb{Z}/2\mathbb{Z}$ & $\ge 7$ & 2-Isog.\ of \texttt{2-7.ec} ($\mathbb{Z}/2\mathbb{Z} \to \mathbb{Z}/2\mathbb{Z}$) & $33.04$ & $22\text{ d}$ & $3.08$ & $63.24$ & $[1, -1, 1, -29735621, \dots]$ \\
 \href{https://elliptic-rank.icarm.cloud/curve/4359}{\textbf{\#4359}} & $\mathbb{Z}/2\mathbb{Z} \times \mathbb{Z}/2\mathbb{Z}$ & $\ge 5$ & 2-Isog.\ of \texttt{torsion\_Z4:2354} ($\mathbb{Z}/4\mathbb{Z} \to [2,2]$) & $27.04$ & $24\text{ d}$ & $4.19$ & $81.12$ & $[0, 0, 0, -11542418356, \dots]$ \\
 \href{https://elliptic-rank.icarm.cloud/curve/4379}{\textbf{\#4379}} & $\mathbb{Z}/2\mathbb{Z} \times \mathbb{Z}/4\mathbb{Z}$ & $\ge 4$ & 2-Isog.\ of \texttt{torsion\_Z4:352} ($\mathbb{Z}/4\mathbb{Z} \to [4,2]$) & $23.94$ & $32\text{ d}$ & $5.21$ & $90.74$ & $[0, -1, 0, -284743456964, \dots]$ \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table}
 
-\section{Empirical Leaderboard Results on NSF ICARM}
+\section{Empirical Leaderboard Results on NSF ICARM}\label{sec:results}
 
 Executing the combined 4-Stage Werr Algebraic Sieve and V\'{e}lu Isogeny Graph Engine across the live ICARM database and historical parametric curve families, we submitted and certified \textbf{230 distinct Top-10 curves} (\texttt{\#4308} through \texttt{\#4537}) on \url{https://elliptic-rank.icarm.cloud} under contributor profile \textbf{Volkan Dagli (\texttt{user/114})}.
 
 \subsection{Global Certification Metrics and Torsion--Rank Distribution}
 
-Table~\ref{tab:icarm_summary} summarizes the overall audit of our 230 accepted curves verified by the ICARM in-worker PARI/GP 2.17.2 engine, and Table~\ref{tab:torsion_rank_dist} gives the exact distribution of these 230 curves across all 8 torsion subgroups and 13 rank thresholds ($r = 4$ to $r = 19$).
+Table~\ref{tab:icarm_summary} summarizes the overall verification audit of our 230 accepted curves certified by the ICARM in-worker PARI/GP 2.17.2 kernel, and Table~\ref{tab:torsion_rank_dist} gives the exact distribution of these 230 curves across all 8 torsion subgroups and 13 rank thresholds ($r = 4$ to $r = 19$).
 
 \begin{table}[htbp]
 \centering
-\small
+\footnotesize
 \caption{Official Verification and Leaderboard Audit Summary on NSF ICARM (\texttt{user/114})}
 \label{tab:icarm_summary}
-\begin{tabular}{ll}
+\begin{tabularx}{\textwidth}{l>{\raggedright\arraybackslash}X}
 \toprule
 \textbf{Leaderboard Metric / Verification Attribute} & \textbf{Certified Value} \\
 \midrule
-Total Curves Accepted in Top-10 (\texttt{\#4308}--\texttt{\#4537}) & \textbf{230 curves} ($100.0\%$ \texttt{status: created}) \\
+Total Curves Accepted in Top-10 (\texttt{\#4308}--\texttt{\#4537}) & \textbf{230 curves} ($100.0\%$ \texttt{status:\ created}) \\
 Certified Conductor Factorizations ($\log N$) & \textbf{230 / 230 ($100.0\%$ factored, 0 unknown \texttt{?})} \\
 Active $(T, \mathrm{Rank})$ Leaderboards with Top-10 Presence & \textbf{43 distinct leaderboards} \\
 Total \textbf{\#1 Gold} (First-Place World Record) Placements & \textbf{30 First-Place Records} \\
 Total \textbf{Top-3} (Podium: \#1, \#2, \#3) Placements & \textbf{80 Podium Finishes} \\
 Total \textbf{Top-10} Placements Across All 4 Metrics & \textbf{418 Top-10 Placements} \\
 Mordell--Weil Rank Range of Certified Curves & $\mathbf{r \ge 4}$ \textbf{up to} $\mathbf{r \ge 19}$ \\
-Largest Minimal Discriminant Completely Factored & \textbf{110 decimal digits} (21 distinct prime factors) \\
-Largest Individual Prime Factor Certified in $\Delta$ & \textbf{38 decimal digits} ($p = 19784615932645016681903715865197620339$) \\
+Largest Minimal Discriminant Completely Factored & \textbf{110 decimal digits} (21 distinct prime factors on \texttt{\#4383}) \\
+Largest Individual Prime Factor Certified in $\Delta$ & \textbf{38 decimal digits} ($p = \texttt{19784615932645016681903715865197620339}$) \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
 
 \begin{table}[htbp]
@@ -414,7 +420,7 @@ $\mathbb{Z}/2\mathbb{Z} \times \mathbb{Z}/4\mathbb{Z}$ & \texttt{[4, 2]} & 1 & 1
 
 \subsection{Complete Breakdown of \#1 Gold Records (30 First-Place Placements)}
 
-Table~\ref{tab:gold_records} presents the 15 flagship curves from our Zenodo monograph \cite{dagli2026zenodo} that achieved \texttt{\#1} (First Place / Gold Record) and world-record placements across the four official leaderboard metrics: Conductor ($N$), Minimal Discriminant ($|\Delta|$), Faltings Height ($h_F$), and Naive Height ($h_{\text{naive}}$).
+Table~\ref{tab:gold_records} presents the 15 flagship curves from our Zenodo monograph \cite{dagli2026zenodo} that achieved \texttt{\#1} (First Place / Gold Record) and world-record placements across the four official leaderboard metrics: Conductor ($N$), Minimal Discriminant ($|\Delta_{\min}|$), Faltings Height ($h_F$), and Naive Height ($h_{\text{naive}}$).
 
 \begin{table}[htbp]
 \centering
@@ -461,84 +467,84 @@ $\mathbb{Z}/2\mathbb{Z} \times \mathbb{Z}/2\mathbb{Z}$ & $\ge 12$ & \href{https:
 
 \subsection{Detailed Case Studies of Landmark Curves}
 
-\subsubsection{Case Study 1: The ``Grand Slam'' Curve (\texttt{\#4315}, $T = \mathbb{Z}/2\mathbb{Z} \times \mathbb{Z}/2\mathbb{Z}$, $\mathrm{Rank} \ge 9$)}
+\subsubsection{\texorpdfstring{Case Study 1: The ``Grand Slam'' Curve (\texttt{\#4315}, $T = \mathbb{Z}/2\mathbb{Z} \times \mathbb{Z}/2\mathbb{Z}$, $\mathrm{Rank} \ge 9$)}{Case Study 1: The Grand Slam Curve (\#4315, T = Z/2Z x Z/2Z, Rank >= 9)}}
 
 Curve \texttt{\#4315} (\url{https://elliptic-rank.icarm.cloud/curve/4315}), originating from the Layr-Labs / Yukon Elliptic Rank Challenge (\texttt{2x2-9.ec}) and certified with its complete conductor factorization via our 4-Stage Werr Algebraic Sieve, is defined by the minimal Weierstrass equation:
 \begin{equation}
 E_{4315}: \quad y^2 = x^3 - x^2 - 567553808246049 x + 2655925051270455158049.
 \end{equation}
-Its exact machine-verified arithmetic invariants in \texttt{accepted\_curves\_230.json} are:
+Its exact machine-verified arithmetic invariants and real-locus geometry are:
 \begin{itemize}[leftmargin=2em,noitemsep]
-    \item \textbf{Mordell--Weil Rank \& Regulator:} $\mathrm{rank}(E_{4315}(\mathbb{Q})) \ge 9$, with N\'{e}ron--Tate regulator $R = 3980874.3395$.
+    \item \textbf{Mordell--Weil Rank \& Regulator:} $\mathrm{rank}(E_{4315}(\mathbb{Q})) \ge 9$, certified in $0$ halvings via \texttt{erk\_cert}, with N\'{e}ron--Tate regulator $R = 3980874.3395$.
+    \item \textbf{Real-Locus Topology $E_{4315}(\mathbb{R})$:} Because $E_{4315}(\mathbb{Q})[2] \cong \mathbb{Z}/2\mathbb{Z} \times \mathbb{Z}/2\mathbb{Z}$, the cubic right-hand side has three rational roots $e_1 < e_2 < e_3$, decomposing $E_{4315}(\mathbb{R})$ into two connected components ($c_\infty = 2$): $7$ independent generators ($P_2, \dots, P_8$) lie on the compact oval $[-25.89 \times 10^6,\, 4.88 \times 10^6]$ and $2$ generators ($P_1, P_9$) lie on the unbounded branch $x \ge 21.00 \times 10^6$.
     \item \textbf{Minimal Discriminant ($46$ digits):} $\Delta_{4315} = 8653109808461883529988557689980524859315257344$.
     \item \textbf{Certified Bad Primes ($10$ primes):} $\mathcal{S}_{4315} = \{2, 3, 41, 73, 79, 311, 337, 953, 1193, 1433\}$.
-    \item \textbf{Certified Conductor ($22$ digits):} $N_{4315} = 7751841093349428163776$ ($\log N = 50.402$).
-    \item \textbf{Heights:} Faltings height $h_F = 7.5110$, Naive height $h_{\text{naive}} = 113.5307$.
+    \item \textbf{Certified Conductor ($22$ digits):} $N_{4315} = 7751841093349428163776$ ($\log N = 50.402$, $h_F = 7.5110$, $h_{\text{naive}} = 113.5307$).
     \item \textbf{Leaderboard Outcome:} Captures a \textbf{Grand Slam}---ranking \textbf{\#1 in Conductor $N$}, \textbf{\#1 in Discriminant $|\Delta|$}, \textbf{\#1 in Faltings Height}, and \textbf{\#1 in Naive Height} simultaneously among all known curves with $T = \mathbb{Z}/2\mathbb{Z} \times \mathbb{Z}/2\mathbb{Z}$ and $\mathrm{rank} \ge 9$.
 \end{itemize}
 
-\subsubsection{Case Study 2: 110-Digit Discriminant Factorization (\texttt{\#4383}, $T = \mathbb{Z}/2\mathbb{Z} \times \mathbb{Z}/2\mathbb{Z}$, $\mathrm{Rank} \ge 12$)}
+\subsubsection{\texorpdfstring{Case Study 2: 110-Digit Discriminant Factorization (\texttt{\#4383}, $T = \mathbb{Z}/2\mathbb{Z} \times \mathbb{Z}/2\mathbb{Z}$, $\mathrm{Rank} \ge 12$)}{Case Study 2: 110-Digit Discriminant Factorization (\#4383, T = Z/2Z x Z/2Z, Rank >= 12)}}
 
-Curve \texttt{\#4383} (\url{https://elliptic-rank.icarm.cloud/curve/4383}), specialized in Dujella's historical tables for $T = \mathbb{Z}/2\mathbb{Z} \times \mathbb{Z}/2\mathbb{Z}$ at world-record rank $\ge 12$, is given by the minimal model:
+Curve \texttt{\#4383} (\url{https://elliptic-rank.icarm.cloud/curve/4383}), discovered by Zev Klagsbrun and cataloged in Dujella's historical tables (\texttt{z2z2old1011121314.html\#pre19}) at the world-record rank $\ge 12$ for $T = \mathbb{Z}/2\mathbb{Z} \times \mathbb{Z}/2\mathbb{Z}$, was reconstructed from its 12 rational generators via our Tier-1 normalized point-interpolation solver to yield the global minimal model (with 36-digit $a_4$ and 54-digit $a_6$):
 \begin{align}
 E_{4383}: \quad y^2 &= x^3 - x^2 - 677306627965757529626257935159540433 x \nonumber \\
 &\quad + 119301667254399453475376497157678435925462248950082737.
 \end{align}
-Its minimal discriminant $\Delta_{4383}$ spans \textbf{110 decimal digits} ($363$ bits):
+On the real locus $E_{4383}(\mathbb{R})$, $7$ independent generators lie on the compact oval and $5$ generators lie on the unbounded branch. Its minimal discriminant $\Delta_{4383}$ spans \textbf{110 decimal digits} ($363$ bits):
 \begin{align*}
 \Delta_{4383} &= 1373686660712364298365057023889786144568359396148581391 \\
 &\quad \times 10^{55} + 5260222287850955952451747557275032044110892495104000000.
 \end{align*}
-Using Proposition~\ref{prop:cubic_peeling} (Stage 1--2 monic cubic root-difference decomposition) followed by Stage 3 sieving, our pipeline factored $\Delta_{4383}$ completely into \textbf{21 distinct prime factors}:
+Using Proposition~\ref{prop:cubic_peeling} (Stage 1--2 monic cubic pairwise root-difference decomposition) followed by Stage~3 sieving, our pipeline factored $\Delta_{4383}$ completely into \textbf{21 distinct prime factors}:
 \begin{align}
 \mathcal{S}_{4383} &= \{2, 3, 5, 11, 17, 31, 37, 43, 47, 71, 89, 97, 137, 197, 433, \nonumber \\
 &\quad 877, 1093, 1153, 2423, 50671, 363119\},
 \end{align}
-certifying its 48-digit conductor $N_{4383} = 734375670289085539129194693801768623503331947200$ ($\log N = 110.219$, regulator $R = 5.2391 \times 10^{11}$, $h_F = 19.6397$, $h_{\text{naive}} = 259.1239$) and securing $\#2$ in $|\Delta|$, $h_F$, and $h_{\text{naive}}$ on the $\mathbb{Z}/2\mathbb{Z} \times \mathbb{Z}/2\mathbb{Z}$, $\mathrm{Rank} \ge 12$ leaderboard.
+certifying its 48-digit conductor $N_{4383} = 734375670289085539129194693801768623503331947200$ ($\log N = 110.219$, regulator $R = 5.2391 \times 10^{11}$, $h_F = 19.6397$, $h_{\text{naive}} = 259.1239$) and securing \texttt{\#2} in $|\Delta_{\min}|$, $h_F$, and $h_{\text{naive}}$ on the $\mathbb{Z}/2\mathbb{Z} \times \mathbb{Z}/2\mathbb{Z}$, $\mathrm{Rank} \ge 12$ leaderboard.
 
-\subsubsection{Case Study 3: Elkies Rank $\ge 19$ Conductor Certification (\texttt{\#4323}, Trivial Torsion)}
+\subsubsection{\texorpdfstring{Case Study 3: Elkies Rank $\ge 19$ Conductor Certification (\texttt{\#4323}, Trivial Torsion)}{Case Study 3: Elkies Rank >= 19 Conductor Certification (\#4323, Trivial Torsion)}}
 
-Curve \texttt{\#4323} (\url{https://elliptic-rank.icarm.cloud/curve/4323}), specialized from Elkies' high-rank fibration families and cataloged in Rubinstein's tables (\texttt{family\_trivial.tsv.gz:114}), achieves certified Mordell--Weil rank $\mathrm{rank}(E(\mathbb{Q})) \ge 19$ (regulator $R = 1.8090 \times 10^{21}$) with minimal equation:
+Curve \texttt{\#4323} (\url{https://elliptic-rank.icarm.cloud/curve/4323}), specialized by Noam Elkies and cataloged in Rubinstein's tables (\texttt{family\_trivial.tsv.gz:114}), achieves certified Mordell--Weil rank $\mathrm{rank}(E(\mathbb{Q})) \ge 19$ (regulator $R = 1.8090 \times 10^{21}$) with minimal equation:
 \begin{equation}
 E_{4323}: \quad y^2 = x^3 - 739431074852767844236975 x + 331314067119134775943540728349251250.
 \end{equation}
-Its 74-digit negative discriminant
+Its 74-digit negative minimal discriminant
 \begin{equation*}
 \Delta_{4323} = -21545647141446084358635305304038945104284124145535331147329573901436000000
 \end{equation*}
-resisted unassisted in-worker factorization due to three large prime factors of $18$, $18$, and $19$ digits. The 4-Stage Werr Algebraic Sieve resolved all \textbf{9 bad primes}:
+fails ICARM's \texttt{autoBadPrimes} ($10^7$ bound) because after stripping small prime powers $2^6 \cdot 5^6 \cdot 7^2 \cdot 13^2 \cdot 47 \cdot 127$, there remains a 54-digit composite cofactor $C_{54}$ composed of three primes of $18$, $18$, and $19$ digits. The 4-Stage Werr Algebraic Sieve resolved all \textbf{9 bad primes}:
 \begin{equation}
 \mathcal{S}_{4323} = \{2, 5, 7, 13, 47, 127, \underbrace{160113632370089479}_{\text{18-digit prime}}, \underbrace{392731995558810161}_{\text{18-digit prime}}, \underbrace{5925062485692821329}_{\text{19-digit prime}}\},
 \end{equation}
-certifying its 62-digit conductor $N_{4323} = 40475339116507435307125435712606155771861961364063680791605800$ ($\log N = 141.860$, $h_F = 12.7770$, $h_{\text{naive}} = 177.0999$) and placing \texttt{\#4323} at \texttt{\#4} in Naive Height, \texttt{\#6} in Faltings Height, and \texttt{\#8} in Discriminant across all elliptic curves of rank $\ge 19$.
+certifying its 62-digit minimal conductor:
+\begin{equation*}
+N_{4323} = 40475339116507435307125435712606155771861961364063680791605800
+\end{equation*}
+($\log N = 141.860$, $\log |\Delta_{\min}| = 168.862$, $h_F = 12.7770$, $h_{\text{naive}} = 177.0999$), placing \texttt{\#4323} at \texttt{\#4} in Naive Height, \texttt{\#6} in Faltings Height, and \texttt{\#8} in Discriminant across all elliptic curves of rank $\ge 19$.
 
-\section{Scientific Impact: Resolving the $\log N$ Upper-Bound Gap}
+\section{\texorpdfstring{Scientific Impact: Resolving the $\log N$ Upper-Bound Gap}{Scientific Impact: Resolving the log N Upper-Bound Gap}}
 
-A central problem in analytic and algebraic number theory---investigated extensively by Goldfeld, Mestre, Brumer, Watkins, and Elkies \cite{cremona1997algorithms,elkies2006high,silverman1986arithmetic}---is determining the asymptotic and explicit upper bounds for the Mordell--Weil rank $r = \mathrm{rank}(E(\mathbb{Q}))$ in terms of the analytic conductor $\log N(E)$. Under the Generalized Riemann Hypothesis (GRH) and the Birch and Swinnerton-Dyer (BSD) conjecture, Mestre's explicit formula bounds the analytic rank by $r = O(\log N / \log \log N)$, while Szpiro's conjecture posits that for any $\varepsilon > 0$ there exists a constant $C(\varepsilon)$ such that
-\begin{equation}
-|\Delta_{\min}(E)| \le C(\varepsilon) \cdot N(E)^{6 + \varepsilon}.
-\end{equation}
-Empirical testing of explicit Mestre--Brumer conductor bounds and Szpiro ratios $\sigma(E) = \log |\Delta_{\min}(E)| / \log N(E)$ at extreme ranks ($r \in [8, 19]$) has historically been hampered by the ``unfactored conductor (\texttt{?})'' gap: because factoring 70--110 digit discriminants is computationally expensive, high-rank curves were frequently deposited with known $|\Delta_{\min}|$ but unknown $N(E)$.
+A central problem in analytic and algebraic number theory---investigated by Goldfeld, Mestre, Brumer, Watkins, and Elkies \cite{cremona1997algorithms,elkies2006high,silverman1986arithmetic}---is determining explicit upper bounds for $\mathrm{rank}(E(\mathbb{Q}))$ in terms of $\log N(E)$. Under the Generalized Riemann Hypothesis (GRH) and the Birch and Swinnerton-Dyer (BSD) conjecture, Mestre's explicit formula bounds the analytic rank by $r = O(\log N / \log \log N)$, while Szpiro's conjecture posits that for any $\varepsilon > 0$ there exists a constant $C(\varepsilon)$ such that $|\Delta_{\min}(E)| \le C(\varepsilon) \cdot N(E)^{6 + \varepsilon}$. Empirical testing of Mestre--Brumer conductor bounds and Szpiro ratios $\sigma(E) = \log |\Delta_{\min}(E)| / \log N(E)$ at extreme ranks ($r \in [8, 19]$) has historically been hampered by the ``unfactored conductor (\texttt{?})'' gap whenever $|\Delta_{\min}|$ contains multiple primes above $10^7$.
 
 By delivering \textbf{100\% certified prime factorizations ($230/230$)} across all 230 high-rank curves in our dataset, this work provides a machine-checked empirical benchmark for arithmetic geometers:
 \begin{itemize}[leftmargin=2em]
-    \item On the $\mathbb{Z}/2\mathbb{Z} \times \mathbb{Z}/2\mathbb{Z}, \mathrm{Rank} \ge 9$ Grand Slam curve \texttt{\#4315}, the Szpiro ratio is $\sigma(E_{4315}) = \log |\Delta| / \log N = 105.78 / 50.40 = 2.099$, and the rank-to-conductor ratio is $r / \log_{10} N = 9 / 21.89 = 0.411$.
-    \item On the 110-digit discriminant curve \texttt{\#4383} ($\mathbb{Z}/2\mathbb{Z} \times \mathbb{Z}/2\mathbb{Z}, \mathrm{Rank} \ge 12$), Stage 1--2 cubic peeling reveals that heavy prime powers at small primes drop the 110-digit discriminant ($|\Delta| \approx 1.37 \times 10^{109}$) to a 48-digit conductor ($N \approx 7.34 \times 10^{47}$), yielding a Szpiro ratio of $\sigma(E_{4383}) = 251.30 / 110.22 = 2.280$.
+    \item On the $\mathbb{Z}/2\mathbb{Z} \times \mathbb{Z}/2\mathbb{Z}, \mathrm{Rank} \ge 9$ Grand Slam curve \texttt{\#4315}, the Szpiro ratio is $\sigma(E_{4315}) = \log |\Delta_{\min}| / \log N = 105.78 / 50.40 = 2.099$, and the rank-to-conductor ratio is $r / \log_{10} N = 9 / 21.89 = 0.411$.
+    \item On the 110-digit discriminant curve \texttt{\#4383} ($\mathbb{Z}/2\mathbb{Z} \times \mathbb{Z}/2\mathbb{Z}, \mathrm{Rank} \ge 12$), Stage 1--2 cubic peeling reveals that heavy prime powers at small primes drop the 110-digit discriminant ($|\Delta_{\min}| \approx 1.37 \times 10^{109}$) to a 48-digit conductor ($N \approx 7.34 \times 10^{47}$), yielding $\sigma(E_{4383}) = 251.30 / 110.22 = 2.280$.
     \item On the Elkies $\mathrm{Rank} \ge 19$ curve \texttt{\#4323}, the certified conductor $\log N = 141.86$ ($\log_{10} N = 61.61$) establishes an explicit certified high-rank benchmark point with Szpiro ratio $\sigma(E_{4323}) = 168.86 / 141.86 = 1.190$.
 \end{itemize}
 
-\section{Intellectual Attribution and Scientific Lineage}
+\section{Intellectual Attribution and Acknowledgments}
 
 In open science and computational mathematics, new algorithmic syntheses and verification campaigns build directly upon decades of foundational theoretical and computational discoveries:
 \begin{enumerate}[leftmargin=2em]
-    \item \textbf{Original Discoverers of High-Rank Parametric Families:} Full credit for the underlying elliptic surface fibrations, Mordell--Weil lattice specializations, and $p$-adic point searches belongs to their original discoverers: \textbf{Prof.\ Noam D.\ Elkies} (Harvard University) \cite{elkies2006high}, \textbf{Prof.\ Andrej Dujella} (University of Zagreb) \cite{dujella2024highrank}, \textbf{Prof.\ Michael Rubinstein} (University of Waterloo) \cite{rubinstein2024tables}, \textbf{Dr.\ Zev Klagsbrun}, and the contributors of the \textbf{Layr-Labs / Yukon Elliptic Rank Challenge}, alongside the foundational methodologies of J.~Silverman \cite{silverman1986arithmetic}, J.~Cremona \cite{cremona1997algorithms}, K.~Eriksson, and P.~Brumer.
-    \item \textbf{NSF ICARM \& Leaderboard Maintainers:} Part of this research made use of the Elliptic Curve Rank Leaderboard, maintained by the \textbf{Institute for Computer-Aided Reasoning in Mathematics (ICARM)} at Carnegie Mellon University under \textbf{U.S.\ National Science Foundation Grant DMS-2425401}. We warmly thank \textbf{David Renshaw} (\texttt{@dwrensha}) and \textbf{Seewoo Lee} (\texttt{@seewoo5}) for building and maintaining the interactive PARI/GP 2.17.2 WebAssembly verification platform.
+    \item \textbf{Original Discoverers of High-Rank Parametric Families:} Full credit for the underlying elliptic surface fibrations, Mordell--Weil lattice specializations, and $p$-adic point searches belongs to their original discoverers: \textbf{Prof.\ Noam D.\ Elkies} (Harvard University) \cite{elkies2006high,elkies2024rank29}, \textbf{Prof.\ Andrej Dujella} (University of Zagreb) \cite{dujella2024highrank}, \textbf{Prof.\ Michael Rubinstein} (University of Waterloo) \cite{rubinstein2024tables}, \textbf{Dr.\ Zev Klagsbrun} \cite{elkies2024rank29}, and the contributors of the \textbf{Layr-Labs / Yukon Elliptic Rank Challenge}, alongside the foundational methodologies of J.~Silverman \cite{silverman1986arithmetic,silverman2000xedni}, J.~Cremona \cite{cremona1997algorithms,cremona2006filter}, K.~Eriksson, and A.~Brumer.
+    \item \textbf{NSF ICARM \& Leaderboard Maintainers:} This research made use of the Elliptic Curve Rank Leaderboard, maintained by the \textbf{Institute for Computer-Aided Reasoning in Mathematics (ICARM)} under \textbf{U.S.\ National Science Foundation Grant DMS-2425401}. The views expressed in this article do not necessarily reflect those of the National Science Foundation. We warmly thank \textbf{David Renshaw} (\texttt{@dwrensha}) and \textbf{Seewoo Lee} (\texttt{@seewoo5}) for building and maintaining the interactive PARI/GP 2.17.2 WebAssembly verification platform.
     \item \textbf{Computing Infrastructure:} Dedicated multi-core bare-metal verification clusters and high-memory compute nodes were provided by \textbf{Bekirhan Da\u{g}l\i} (Managing Partner, ITouch Systems Research \& Development).
 \end{enumerate}
 
 \section{Conclusion and Future Work}
 
-By uniting the 4-Stage Werr Multi-Layer Algebraic Sieve with systematic V\'{e}lu Isogeny Graph Transport, we resolved the conductor certification bottleneck across 230 high-rank elliptic curves over $\mathbb{Q}$ on the NSF ICARM leaderboard, achieving $100\%$ certified conductor factorizations ($230/230$), 30 \#1 Gold records, 80 podiums, and 418 Top-10 placements across 43 active leaderboards. Future work will extend this certificate-driven methodology to genus-2 hyperelliptic Jacobians over $\mathbb{Q}$ and formalize Tate's local reduction algorithm directly in the Lean 4 theorem prover.
+By uniting the 4-Stage Werr Multi-Layer Algebraic Sieve with systematic V\'{e}lu Isogeny Graph Transport, we resolved the conductor certification bottleneck across 230 high-rank elliptic curves over $\mathbb{Q}$ on the NSF ICARM leaderboard, achieving $100\%$ certified conductor factorizations ($230/230$), 30 \#1 Gold records, 80 podiums, and 418 Top-10 placements across 43 active leaderboards. Future work will extend this certificate-driven methodology to genus-2 hyperelliptic Jacobians over $\mathbb{Q}$ and formalize both the 2-descent quadratic-character independence certificate (\texttt{erk\_cert}) and Tate's local reduction algorithm directly in the Lean 4 theorem prover.
 
 \section*{Data Availability and Reproducibility}
 
@@ -572,10 +578,20 @@ J.~E.~Cremona,
 \emph{Algorithms for Modular Elliptic Curves},
 2nd ed., Cambridge University Press, 1997.
 
+\bibitem{cremona2006filter}
+J.~E.~Cremona,
+On the computation of Mordell--Weil and 2-Selmer groups of elliptic curves,
+University of Warwick / Nottingham Preprint Note (\url{https://johncremona.github.io/papers/filter.pdf}), Section~2 (Quadratic Character Independence Filter, attributed to A.~Brumer), 2006.
+
 \bibitem{dagli2026zenodo}
 V.~Da\u{g}l\i, Z.~Da\u{g}l\i, and D.~Da\u{g}l\i,
 \emph{Werr Multi-Layer Algebraic Sieve \& V\'{e}lu Isogeny Engine: 100\% Conductor Certification ($\log N$) and High-Rank Elliptic Curve Records on the NSF ICARM Leaderboard},
 CERN Zenodo Research Monograph \& Dataset, DOI: \href{https://doi.org/10.5281/zenodo.23436282}{10.5281/zenodo.23436282}, October 2026.
+
+\bibitem{dagli2026sieve}
+V.~Da\u{g}l\i, Z.~Da\u{g}l\i, and D.~Da\u{g}l\i,
+\emph{The Werr 4-Pillar Multi-Layer Algebraic Sieve and Word-Packed $\mathbb{F}_2$ Quadratic Sieve Synthesis},
+Werr Research Corpus Technical Report, ITouch Systems R\&D, 2026.
 
 \bibitem{dujella2024highrank}
 A.~Dujella,
@@ -587,6 +603,11 @@ N.~D.~Elkies,
 $\mathbb{Z}/2\mathbb{Z}$-torsion elliptic curves over $\mathbb{Q}$ with rank at least $19$, and an elliptic curve over $\mathbb{Q}$ of rank at least $28$,
 \emph{Number Theory Listserver Announcements}, Harvard University, 2006.
 
+\bibitem{elkies2024rank29}
+N.~D.~Elkies and Z.~Klagsbrun,
+New record elliptic curve over $\mathbb{Q}$ of Mordell--Weil rank at least $29$ and high-rank $\mathbb{Z}/2\mathbb{Z} \times \mathbb{Z}/2\mathbb{Z}$ fibrations,
+\emph{Computational Number Theory Announcements}, 2024.
+
 \bibitem{hales2017formal}
 T.~Hales et~al.,
 A formal proof of the Kepler conjecture,
@@ -594,8 +615,8 @@ A formal proof of the Kepler conjecture,
 
 \bibitem{icarm2026leaderboard}
 D.~Renshaw and S.~Lee,
-\emph{Elliptic Curve Rank Leaderboard},
-NSF Institute for Computer-Aided Reasoning in Mathematics (ICARM), Carnegie Mellon University, U.S.\ National Science Foundation Grant DMS-2425401, \url{https://elliptic-rank.icarm.cloud}, 2026.
+\emph{Elliptic Curve Rank Leaderboard} (\texttt{icarm/elliptic-rank}),
+NSF Institute for Computer-Aided Reasoning in Mathematics (ICARM), U.S.\ National Science Foundation Grant DMS-2425401, \url{https://elliptic-rank.icarm.cloud} and \url{https://github.com/icarm/elliptic-rank}, 2026.
 
 \bibitem{lenstra1987factoring}
 H.~W.~Lenstra,~Jr.,
@@ -615,12 +636,17 @@ Universit\'{e} de Bordeaux, \url{https://pari.math.u-bordeaux.fr/}, 2024.
 \bibitem{rubinstein2024tables}
 M.~Rubinstein,
 \emph{Elliptic curves by rank and torsion},
-Computational Number Theory Database, University of Waterloo, 2024.
+Computational Number Theory Database, University of Waterloo, \url{https://github.com/mrubinst/elliptic-curves-by-rank}, 2024.
 
 \bibitem{silverman1986arithmetic}
 J.~H.~Silverman,
 \emph{The Arithmetic of Elliptic Curves},
 Graduate Texts in Mathematics, vol.~106, Springer-Verlag, New York, 1986.
+
+\bibitem{silverman2000xedni}
+J.~H.~Silverman,
+The xedni calculus and the elliptic curve discrete logarithm problem,
+\emph{Designs, Codes and Cryptography}, vol.~20, no.~1, pp.~5--40, 2000.
 
 \bibitem{tate1975algorithm}
 J.~Tate,
