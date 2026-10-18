@@ -1,5 +1,9 @@
 # 🚀 arXiv Adım Adım Yükleme Rehberi (Werr Multi-Layer Sieve & Vélu Isogeny Engine)
 
+> [!TIP]
+> **Resmi Gönderim Kaydı Tamamlandı (`submit/8246351`):**  
+> Makale **Zerrin Dağlı**'nın arXiv hesabı üzerinden **`submit/8246351`** geçici gönderim numarasıyla (`cs.LO` ana kategori; `math.NT`, `cs.SC`, `math.AG` çapraz kategoriler) başarıyla arXiv moderasyon ve teknik kontrol sürecine alınmıştır.
+
 Bu rehber, **Automated Reasoning and In-Worker Verification for High-Rank Elliptic Curves: The 4-Stage Werr Algebraic Sieve, Conductor Certification (log N), and Velu Isogeny Graph Transport on the NSF ICARM Leaderboard** makalesinin **Zerrin Dağlı**'nın arXiv hesabı üzerinden ([arxiv.org/submit](https://arxiv.org/submit)) tek seferde, sıfır hata ile yüklenmesi için ekran ekran hazırlanmıştır.
 
 > [!IMPORTANT]

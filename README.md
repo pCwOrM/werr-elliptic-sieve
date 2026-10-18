@@ -104,7 +104,7 @@ GitHub Repository: [pCwOrM/werr-elliptic-sieve](https://github.com/pCwOrM/werr-e
 
 * **CERN Zenodo Concept DOI (All Versions):** [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23436282.svg)](https://doi.org/10.5281/zenodo.23436282) &bull; [10.5281/zenodo.23436282](https://doi.org/10.5281/zenodo.23436282)
 * **CERN Zenodo Release v1.0 DOI:** [10.5281/zenodo.23436283](https://doi.org/10.5281/zenodo.23436283)
-* **arXiv Preprint Package:** [`arxiv_package/Werr_Elliptic_Sieve_ICARM_Preprint.pdf`](arxiv_package/Werr_Elliptic_Sieve_ICARM_Preprint.pdf) &bull; Bundle: [`arxiv_package/arxiv_bundle.tar.gz`](arxiv_package/arxiv_bundle.tar.gz)
+* **arXiv Preprint (`submit/8246351`, `cs.LO` | `math.NT` | `cs.SC` | `math.AG`):** [`arxiv_package/Werr_Elliptic_Sieve_ICARM_Preprint.pdf`](arxiv_package/Werr_Elliptic_Sieve_ICARM_Preprint.pdf) &bull; Bundle: [`arxiv_package/arxiv_bundle.tar.gz`](arxiv_package/arxiv_bundle.tar.gz)
 * **arXiv Submission Guide:** [`ARXIV_YUKLEME_REHBERI.md`](ARXIV_YUKLEME_REHBERI.md)
 * **Camera-Ready Research Monograph:** [`Werr_Elliptic_Sieve_ICARM_Leaderboard_Monograph.pdf`](Werr_Elliptic_Sieve_ICARM_Leaderboard_Monograph.pdf)
 
