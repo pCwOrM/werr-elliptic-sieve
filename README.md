@@ -70,19 +70,19 @@ In mathematics and open science, true progress rests on transparency, rigorous v
 
 | Torsion Subgroup T | Rank Bound | #1 (Gold Record) Metrics | Curve ID | Additional Podium Placements |
 | :--- | :---: | :--- | :---: | :--- |
-| **ℤ/2ℤ × ℤ/2ℤ (`[2, 2]`)** | **`Rank ≥ 9`** | **🥇 `#1` Conductor (N)**<br> **🥇 `#1` Discriminant (\|Δ\|)**<br> **🥇 `#1` Faltings Height**<br> **🥇 `#1` Naive Height** | [`#4315`](https://elliptic-rank.icarm.cloud/curve/4315) | *Grand Slam: 4 out of 4 #1 records!* |
-| **ℤ/2ℤ × ℤ/2ℤ (`[2, 2]`)** | **`Rank ≥ 8`** | **🥇 `#1` Naive Height** | [`#4314`](https://elliptic-rank.icarm.cloud/curve/4314) | 🥈 `#2` \|Δ\|, 🥈 `#2` Faltings, 🥉 `#3` Conductor |
-| **ℤ/2ℤ × ℤ/2ℤ (`[2, 2]`)** | **`Rank ≥ 7`** | **🥇 `#1` Discriminant (\|Δ\|)**<br> **🥇 `#1` Faltings Height**<br> **🥇 `#1` Naive Height** | [`#4313`](https://elliptic-rank.icarm.cloud/curve/4313) | (`#6` Conductor N) |
-| **ℤ/2ℤ × ℤ/4ℤ (`[4, 2]`)** | **`Rank ≥ 6`** | **🥇 `#1` Discriminant (\|Δ\|)**<br> **🥇 `#1` Faltings Height**<br> **🥇 `#1` Naive Height** | [`#4320`](https://elliptic-rank.icarm.cloud/curve/4320) | (`#5` Conductor N) |
-| **ℤ/2ℤ × ℤ/4ℤ (`[4, 2]`)** | **`Rank ≥ 5`** | **🥇 `#1` Discriminant (\|Δ\|)**<br> **🥇 `#1` Faltings Height**<br> **🥇 `#1` Naive Height** | [`#4322`](https://elliptic-rank.icarm.cloud/curve/4322) | 🥈 `#2` Conductor N |
-| **ℤ/4ℤ (`[4]`)** | **`Rank ≥ 8`** | **🥇 `#1` Discriminant (\|Δ\|)**<br> **🥇 `#1` Faltings Height**<br> **🥇 `#1` Naive Height** | [`#4319`](https://elliptic-rank.icarm.cloud/curve/4319) | 🥉 `#3` Conductor N |
-| **ℤ/4ℤ (`[4]`)** | **`Rank ≥ 7`** | **🥇 `#1` Discriminant (\|Δ\|)**<br> **🥇 `#1` Faltings Height**<br> **🥇 `#1` Naive Height** | [`#4318`](https://elliptic-rank.icarm.cloud/curve/4318) | 🥉 `#3` Conductor N |
-| **ℤ/5ℤ (`[5]`)** | **`Rank ≥ 7`** | **🥇 `#1` Discriminant (\|Δ\|)**<br> **🥇 `#1` Faltings Height**<br> **🥇 `#1` Naive Height** | [`#4321`](https://elliptic-rank.icarm.cloud/curve/4321) | 🥈 `#2` Conductor N |
-| **ℤ/5ℤ (`[5]`)** | **`Rank ≥ 5`** | **🥇 `#1` Discriminant (\|Δ\|)** | [`#4380`](https://elliptic-rank.icarm.cloud/curve/4380) | 🥈 `#2` \|Δ\| ([`#4381`](https://elliptic-rank.icarm.cloud/curve/4381)), 🥉 `#3` Faltings |
-| **ℤ/2ℤ (`[2]`)** | **`Rank ≥ 9`** | **🥇 `#1` Faltings Height**<br> **🥇 `#1` Naive Height** | [`#4312`](https://elliptic-rank.icarm.cloud/curve/4312) | 🥉 `#3` Discriminant \|Δ\| |
-| **ℤ/2ℤ (`[2]`)** | **`Rank ≥ 7`** | **🥇 `#1` Naive Height** | [`#4311`](https://elliptic-rank.icarm.cloud/curve/4311) | 🥈 `#2` \|Δ\|, 🥈 `#2` Faltings ([`#4311`](https://elliptic-rank.icarm.cloud/curve/4311)), 🥉 `#3` \|Δ\| ([`#4511`](https://elliptic-rank.icarm.cloud/curve/4511)) |
-| **ℤ/3ℤ (`[3]`)** | **`Rank ≥ 8`** | **🥇 `#1` Naive Height** | [`#4317`](https://elliptic-rank.icarm.cloud/curve/4317) | 🥈 `#2` Faltings ([`#4317`](https://elliptic-rank.icarm.cloud/curve/4317)), 🥉 `#3` \|Δ\| ([`#4324`](https://elliptic-rank.icarm.cloud/curve/4324)) |
-| **ℤ/3ℤ (`[3]`)** | **`Rank ≥ 7`** | **🥇 `#1` Faltings Height**<br> **🥇 `#1` Naive Height** | [`#4316`](https://elliptic-rank.icarm.cloud/curve/4316) | 🥈 `#2` \|Δ\| ([`#4327`](https://elliptic-rank.icarm.cloud/curve/4327)), 🥈 `#2` Naive ([`#4330`](https://elliptic-rank.icarm.cloud/curve/4330)) |
+| **ℤ/2ℤ × ℤ/2ℤ (`[2, 2]`)** | **`Rank ≥ 9`** | **🥇 `#1` Conductor (N)**<br> **🥇 `#1` Discriminant (&#124;Δ&#124;)**<br> **🥇 `#1` Faltings Height**<br> **🥇 `#1` Naive Height** | [`#4315`](https://elliptic-rank.icarm.cloud/curve/4315) | *Grand Slam: 4 out of 4 #1 records!* |
+| **ℤ/2ℤ × ℤ/2ℤ (`[2, 2]`)** | **`Rank ≥ 8`** | **🥇 `#1` Naive Height** | [`#4314`](https://elliptic-rank.icarm.cloud/curve/4314) | 🥈 `#2` &#124;Δ&#124;, 🥈 `#2` Faltings, 🥉 `#3` Conductor |
+| **ℤ/2ℤ × ℤ/2ℤ (`[2, 2]`)** | **`Rank ≥ 7`** | **🥇 `#1` Discriminant (&#124;Δ&#124;)**<br> **🥇 `#1` Faltings Height**<br> **🥇 `#1` Naive Height** | [`#4313`](https://elliptic-rank.icarm.cloud/curve/4313) | (`#6` Conductor N) |
+| **ℤ/2ℤ × ℤ/4ℤ (`[4, 2]`)** | **`Rank ≥ 6`** | **🥇 `#1` Discriminant (&#124;Δ&#124;)**<br> **🥇 `#1` Faltings Height**<br> **🥇 `#1` Naive Height** | [`#4320`](https://elliptic-rank.icarm.cloud/curve/4320) | (`#5` Conductor N) |
+| **ℤ/2ℤ × ℤ/4ℤ (`[4, 2]`)** | **`Rank ≥ 5`** | **🥇 `#1` Discriminant (&#124;Δ&#124;)**<br> **🥇 `#1` Faltings Height**<br> **🥇 `#1` Naive Height** | [`#4322`](https://elliptic-rank.icarm.cloud/curve/4322) | 🥈 `#2` Conductor N |
+| **ℤ/4ℤ (`[4]`)** | **`Rank ≥ 8`** | **🥇 `#1` Discriminant (&#124;Δ&#124;)**<br> **🥇 `#1` Faltings Height**<br> **🥇 `#1` Naive Height** | [`#4319`](https://elliptic-rank.icarm.cloud/curve/4319) | 🥉 `#3` Conductor N |
+| **ℤ/4ℤ (`[4]`)** | **`Rank ≥ 7`** | **🥇 `#1` Discriminant (&#124;Δ&#124;)**<br> **🥇 `#1` Faltings Height**<br> **🥇 `#1` Naive Height** | [`#4318`](https://elliptic-rank.icarm.cloud/curve/4318) | 🥉 `#3` Conductor N |
+| **ℤ/5ℤ (`[5]`)** | **`Rank ≥ 7`** | **🥇 `#1` Discriminant (&#124;Δ&#124;)**<br> **🥇 `#1` Faltings Height**<br> **🥇 `#1` Naive Height** | [`#4321`](https://elliptic-rank.icarm.cloud/curve/4321) | 🥈 `#2` Conductor N |
+| **ℤ/5ℤ (`[5]`)** | **`Rank ≥ 5`** | **🥇 `#1` Discriminant (&#124;Δ&#124;)** | [`#4380`](https://elliptic-rank.icarm.cloud/curve/4380) | 🥈 `#2` &#124;Δ&#124; ([`#4381`](https://elliptic-rank.icarm.cloud/curve/4381)), 🥉 `#3` Faltings |
+| **ℤ/2ℤ (`[2]`)** | **`Rank ≥ 9`** | **🥇 `#1` Faltings Height**<br> **🥇 `#1` Naive Height** | [`#4312`](https://elliptic-rank.icarm.cloud/curve/4312) | 🥉 `#3` Discriminant &#124;Δ&#124; |
+| **ℤ/2ℤ (`[2]`)** | **`Rank ≥ 7`** | **🥇 `#1` Naive Height** | [`#4311`](https://elliptic-rank.icarm.cloud/curve/4311) | 🥈 `#2` &#124;Δ&#124;, 🥈 `#2` Faltings ([`#4311`](https://elliptic-rank.icarm.cloud/curve/4311)), 🥉 `#3` &#124;Δ&#124; ([`#4511`](https://elliptic-rank.icarm.cloud/curve/4511)) |
+| **ℤ/3ℤ (`[3]`)** | **`Rank ≥ 8`** | **🥇 `#1` Naive Height** | [`#4317`](https://elliptic-rank.icarm.cloud/curve/4317) | 🥈 `#2` Faltings ([`#4317`](https://elliptic-rank.icarm.cloud/curve/4317)), 🥉 `#3` &#124;Δ&#124; ([`#4324`](https://elliptic-rank.icarm.cloud/curve/4324)) |
+| **ℤ/3ℤ (`[3]`)** | **`Rank ≥ 7`** | **🥇 `#1` Faltings Height**<br> **🥇 `#1` Naive Height** | [`#4316`](https://elliptic-rank.icarm.cloud/curve/4316) | 🥈 `#2` &#124;Δ&#124; ([`#4327`](https://elliptic-rank.icarm.cloud/curve/4327)), 🥈 `#2` Naive ([`#4330`](https://elliptic-rank.icarm.cloud/curve/4330)) |
 
 ---
 
@@ -92,10 +92,10 @@ In mathematics and open science, true progress rests on transparency, rigorous v
   *Anadolu University, Eskişehir, Türkiye & ITouch Systems, Adana, Türkiye*  
   ORCID: [0009-0000-1587-8703](https://orcid.org/0009-0000-1587-8703) &bull; Email: `ask@answerr.me`
 * **Zerrin Dağlı** — Mathematical Modeling & Data Verification  
-  *Mersin University, Mersin, Türkiye & Yusuf Kalkavan Anadolu Lisesi, Mersin, Türkiye*  
+  *Mersin University, Mersin, Türkiye & Mersin Üniversitesi, Mersin, Türkiye*  
   ORCID: [0000-0001-9490-6425](https://orcid.org/0000-0001-9490-6425)
 * **Dağhan Dağlı** — Computational Benchmarking & Algorithmic Analysis  
-  *Toros Science High School, MEV (Toros University), Mersin, Türkiye*  
+  *Toros University, Mersin, Türkiye*  
   ORCID: [0009-0003-2492-8313](https://orcid.org/0009-0003-2492-8313)
 * **Bekirhan Dağlı** — Managing Partner, ITouch Systems, Adana, Türkiye  
   *(Computing Clusters & Infrastructure Contributor)*
