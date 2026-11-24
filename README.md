@@ -17,6 +17,23 @@
 [![ORCID: Zerrin Dagli](https://img.shields.io/badge/ORCID-0000--0001--9490--6425-green)](https://orcid.org/0000-0001-9490-6425)
 [![ORCID: Daghan Dagli](https://img.shields.io/badge/ORCID-0009--0003--2492--8313-green)](https://orcid.org/0009-0003-2492-8313)
 
+<p align="center">
+  <img src="assets/demo.gif" alt="WERR Elliptic Sieve ICARM Audit Demo" width="820" />
+</p>
+
+## ⚡ 30-Second Quick Start
+
+```bash
+git clone https://github.com/pCwOrM/werr-elliptic-sieve.git && cd werr-elliptic-sieve
+python scripts/verify_leaderboard_audit.py
+```
+
+**Observed Output:**
+```text
+Total curves in live DB: 8116 | Volkan Dagli (/user/114) curves: 230
+Rank >= 15: Discriminant |Δ| #8 (curve #4393) | Faltings #7 | Naive #3
+```
+
 ---
 
 ## 🏛️ Executive Summary & Official Public Certification
