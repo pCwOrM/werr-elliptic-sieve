@@ -13,9 +13,9 @@
 [![Web3: werracle.io](https://img.shields.io/badge/Web3%20Protocol-werracle.io-f59e0b.svg?logo=cloudflare&logoColor=white)](https://werracle.io/)
 [![Corporate: werracle.com](https://img.shields.io/badge/Corporate%20Portal-werracle.com-2b3bd1.svg?logo=cloudflare&logoColor=white)](https://werracle.com/)
 [![Cloud Vault: R2 Active](https://img.shields.io/badge/Cloud%20Vault-Cloudflare%20R2%20Active-f38020.svg?logo=cloudflare&logoColor=white)](https://werracle.com/)
-[![ORCID: Volkan Dağlı](https://img.shields.io/badge/ORCID-0009--0000--1587--8703-green)](https://orcid.org/0009-0000-1587-8703)
-[![ORCID: Zerrin Dağlı](https://img.shields.io/badge/ORCID-0000--0001--9490--6425-green)](https://orcid.org/0000-0001-9490-6425)
-[![ORCID: Dağhan Dağlı](https://img.shields.io/badge/ORCID-0009--0003--2492--8313-green)](https://orcid.org/0009-0003-2492-8313)
+[![ORCID: Volkan Dagli](https://img.shields.io/badge/ORCID-0009--0000--1587--8703-green)](https://orcid.org/0009-0000-1587-8703)
+[![ORCID: Zerrin Dagli](https://img.shields.io/badge/ORCID-0000--0001--9490--6425-green)](https://orcid.org/0000-0001-9490-6425)
+[![ORCID: Daghan Dagli](https://img.shields.io/badge/ORCID-0009--0003--2492--8313-green)](https://orcid.org/0009-0003-2492-8313)
 
 ---
 
@@ -57,7 +57,7 @@ In mathematics and open science, true progress rests on transparency, rigorous v
    We gratefully acknowledge the **NSF Institute for Computer-Aided Reasoning in Mathematics (ICARM)**, supported by **U.S. National Science Foundation Grant DMS-2425401**, and thank **David Renshaw** (`@dwrensha`), **Seewoo Lee** (`@seewoo5`), and the ICARM team for maintaining the [elliptic-rank.icarm.cloud](https://elliptic-rank.icarm.cloud/) platform and its in-worker PARI/GP 2.17.2 WASM verification pipeline.
 
 3. **Computing Infrastructure:**  
-   Dedicated bare-metal verification clusters and computing resources were provided by **Bekirhan Dağlı** (Managing Partner) and **ITouch Systems Research & Development**.
+   Dedicated bare-metal verification clusters and computing resources were provided by **Bekirhan Dagli** (Managing Partner) and **ITouch Systems Research & Development**.
 
 4. **Our Algorithmic Contribution:**  
    Our specific scientific contribution was two-fold:
@@ -88,16 +88,16 @@ In mathematics and open science, true progress rests on transparency, rigorous v
 
 ## 👥 Canonical Authors & Institutional Affiliations
 
-* **Volkan Dağlı** — Lead Researcher & Systems Architect  
+* **Volkan Dagli** — Lead Researcher & Systems Architect  
   *Anadolu University, Eskişehir, Türkiye & ITouch Systems, Adana, Türkiye*  
   ORCID: [0009-0000-1587-8703](https://orcid.org/0009-0000-1587-8703) &bull; Email: `ask@answerr.me`
-* **Zerrin Dağlı** — Mathematical Modeling & Data Verification  
+* **Zerrin Dagli** — Mathematical Modeling & Data Verification  
   *Mersin University, Mersin, Türkiye & Mersin Üniversitesi, Mersin, Türkiye*  
   ORCID: [0000-0001-9490-6425](https://orcid.org/0000-0001-9490-6425)
-* **Dağhan Dağlı** — Computational Benchmarking & Algorithmic Analysis  
+* **Daghan Dagli** — Computational Benchmarking & Algorithmic Analysis  
   *Toros University, Mersin, Türkiye*  
   ORCID: [0009-0003-2492-8313](https://orcid.org/0009-0003-2492-8313)
-* **Bekirhan Dağlı** — Managing Partner, ITouch Systems, Adana, Türkiye  
+* **Bekirhan Dagli** — Managing Partner, ITouch Systems, Adana, Türkiye  
   *(Computing Clusters & Infrastructure Contributor)*
 
 GitHub Repository: [pCwOrM/werr-elliptic-sieve](https://github.com/pCwOrM/werr-elliptic-sieve)
