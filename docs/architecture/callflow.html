@@ -1,0 +1,1882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>werr-elliptic-sieve — Complete Call Flow &amp; Architecture Documentation</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+:root {
+  --bg: #0f172a; --surface: #1e293b; --border: #334155;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #38bdf8;
+  --warn: #fbbf24; --err: #f87171; --ok: #34d399;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+.container { max-width: 1200px; margin: 0 auto; padding: 40px 24px; }
+h1 { font-size: 2.4rem; margin-bottom: 8px; background: linear-gradient(135deg, var(--accent), #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+h2 { font-size: 1.7rem; margin: 48px 0 16px; padding-bottom: 8px; border-bottom: 2px solid var(--accent); }
+h3 { font-size: 1.25rem; margin: 32px 0 12px; color: var(--accent); }
+h4 { font-size: 1.05rem; margin: 20px 0 8px; color: var(--warn); }
+p { margin: 8px 0; color: var(--muted); }
+.subtitle { color: var(--muted); font-size: 1.1rem; margin-bottom: 32px; }
+.mermaid { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin: 20px 0; overflow-x: auto; position: relative; }
+.mermaid.is-enhanced { padding: 0; overflow: hidden; min-height: 260px; }
+.mermaid-viewport { padding: 54px 24px 24px; overflow: hidden; cursor: grab; touch-action: none; min-height: 260px; }
+.mermaid-viewport.is-dragging { cursor: grabbing; }
+.mermaid-viewport svg { max-width: none !important; height: auto; transform-origin: 0 0; transition: transform 120ms ease; }
+.mermaid-toolbar { position: absolute; top: 10px; right: 10px; z-index: 3; display: flex; align-items: center; gap: 6px; padding: 6px; background: rgba(15,23,42,0.92); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.28); }
+.mermaid-toolbar button, .mermaid-toolbar .zoom-level { height: 28px; min-width: 32px; border: 1px solid var(--border); border-radius: 6px; background: #1e293b; color: var(--text); font: 600 0.78rem system-ui, sans-serif; display: inline-flex; align-items: center; justify-content: center; }
+.mermaid-toolbar button { cursor: pointer; }
+.mermaid-toolbar button:hover { border-color: var(--accent); color: var(--accent); }
+.mermaid-toolbar .zoom-level { min-width: 52px; color: var(--muted); background: transparent; }
+.call-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.92rem; }
+.call-table th { background: #1a2744; color: var(--accent); text-align: left; padding: 10px 14px; border: 1px solid var(--border); }
+.call-table td { padding: 8px 14px; border: 1px solid var(--border); vertical-align: top; }
+.call-table tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+.tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; }
+.tag-async { background: #7c3aed33; color: #a78bfa; }
+.tag-class { background: #05966933; color: var(--ok); }
+.tag-func { background: #2563eb33; color: var(--accent); }
+.tag-cmd { background: #d9770633; color: var(--warn); }
+.tag-endpoint { background: #dc262633; color: var(--err); }
+.tag-hook { background: #db277733; color: #f472b6; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin: 16px 0; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; margin: 16px 0; }
+.arrow-chain { font-family: 'Fira Code', monospace; font-size: 0.85rem; color: var(--accent); padding: 10px; background: rgba(56,189,248,0.06); border-radius: 6px; }
+code { font-family: 'Fira Code', 'Cascadia Code', monospace; background: rgba(255,255,255,0.06); padding: 1px 6px; border-radius: 3px; font-size: 0.88em; }
+ul, ol { margin: 8px 0 8px 24px; color: var(--muted); }
+li { margin: 4px 0; }
+a { color: var(--accent); }
+hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+.nav { position: sticky; top: 0; background: var(--bg); z-index: 10; padding: 12px 0; border-bottom: 1px solid var(--border); display: flex; gap: 20px; flex-wrap: wrap; font-size: 0.9rem; }
+.nav a { text-decoration: none; }
+.nav a:hover { text-decoration: underline; }
+@media (max-width: 768px) { .container { padding: 16px; } h1 { font-size: 1.8rem; } }
+
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>werr-elliptic-sieve — Complete Call Flow &amp; Architecture Documentation</h1>
+<p class="subtitle">Generated from graphify knowledge graph: 109 nodes, 119 edges, 8 communities. Commit: 79883f5</p>
+
+<div class="nav">
+    <a href="#overview">Architecture Overview</a>
+    <a href="#velu-isogeny-engine-py">velu_isogeny_engine.py</a>
+    <a href="#werr-algebraic-sieve-py">werr_algebraic_sieve.py</a>
+    <a href="#steps">steps</a>
+    <a href="#ad-m-5-k-nye-ve-stveri-metadata-giri-i-birebir-k">Adım 5: Künye ve Üstveri (Metadata) Girişi — Birebir Kopyala-Yapıştır</a>
+    <a href="#werr-multi-layer-algebraic-sieve-v-lu-isogeny-en">Werr Multi-Layer Algebraic Sieve &amp; Vélu Isogeny Engine: High-Rank Elliptic Curve Records</a>
+    <a href="#ad-m-5-k-nye-ve-stveri-metadata-giri-i-birebir-k-7fc189">Adım 5: Künye ve Üstveri (Metadata) Girişi — Birebir Kopyala-Yapıştır</a>
+    <a href="#werr-multi-layer-algebraic-sieve-v-lu-isogeny-en-99562e">Werr Multi-Layer Algebraic Sieve &amp; Vélu Isogeny Engine: High-Rank Elliptic Curve Records</a>
+    <a href="#integer-roots-monic-cubic">integer_roots_monic_cubic</a>
+</div>
+
+<!-- ====== Architecture Overview ====== -->
+<h2 id="overview">1. Architecture Overview</h2>
+
+<div class="mermaid">
+
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    VELU_ISOGENY_ENGINE_PY_CDF662D0("velu_isogeny_engine.py<br/><small>19 nodes</small>")
+    class VELU_ISOGENY_ENGINE_PY_CDF662D0 module;
+    WERR_ALGEBRAIC_SIEVE_PY_4836B921("werr_algebraic_sieve.py<br/><small>17 nodes</small>")
+    class WERR_ALGEBRAIC_SIEVE_PY_4836B921 module;
+    STEPS_6578912E("steps<br/><small>16 nodes</small>")
+    class STEPS_6578912E module;
+    AD_M_5_K_NYE_VE_STVERI_METADATA_GIRI_I_BIREBIR_K_D88836C3("Adım 5: Künye ve Üstveri (Metadata) Girişi — Birebir Kopyala-Yapıştır<br/><small>15 nodes</small>")
+    class AD_M_5_K_NYE_VE_STVERI_METADATA_GIRI_I_BIREBIR_K_D88836C3 module;
+    WERR_MULTI_LAYER_ALGEBRAIC_SIEVE_V_LU_ISOGENY_EN_4D4CF0AE("Werr Multi-Layer Algebraic Sieve &amp; Vélu Isogeny Engine: High-Rank Elliptic Curve Records<br/><small>15 nodes</small>")
+    class WERR_MULTI_LAYER_ALGEBRAIC_SIEVE_V_LU_ISOGENY_EN_4D4CF0AE module;
+    AD_M_5_K_NYE_VE_STVERI_METADATA_GIRI_I_BIREBIR_K_880B85C9("Adım 5: Künye ve Üstveri (Metadata) Girişi — Birebir Kopyala-Yapıştır<br/><small>14 nodes</small>")
+    class AD_M_5_K_NYE_VE_STVERI_METADATA_GIRI_I_BIREBIR_K_880B85C9 module;
+    WERR_MULTI_LAYER_ALGEBRAIC_SIEVE_V_LU_ISOGENY_EN_B4D598DD("Werr Multi-Layer Algebraic Sieve &amp; Vélu Isogeny Engine: High-Rank Elliptic Curve Records<br/><small>8 nodes</small>")
+    class WERR_MULTI_LAYER_ALGEBRAIC_SIEVE_V_LU_ISOGENY_EN_B4D598DD module;
+    INTEGER_ROOTS_MONIC_CUBIC_3CB16557("integer_roots_monic_cubic<br/><small>5 nodes</small>")
+    class INTEGER_ROOTS_MONIC_CUBIC_3CB16557 module;
+    WERR_ALGEBRAIC_SIEVE_PY_4836B921 -->|imports x5| VELU_ISOGENY_ENGINE_PY_CDF662D0
+    VELU_ISOGENY_ENGINE_PY_CDF662D0 -->|imports x2| WERR_ALGEBRAIC_SIEVE_PY_4836B921
+    INTEGER_ROOTS_MONIC_CUBIC_3CB16557 -->|calls| VELU_ISOGENY_ENGINE_PY_CDF662D0
+    VELU_ISOGENY_ENGINE_PY_CDF662D0 -->|contains| INTEGER_ROOTS_MONIC_CUBIC_3CB16557
+    WERR_MULTI_LAYER_ALGEBRAIC_SIEVE_V_LU_ISOGENY_EN_4D4CF0AE -->|contains| AD_M_5_K_NYE_VE_STVERI_METADATA_GIRI_I_BIREBIR_K_880B85C9
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h4>Architecture Layers</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>Layer</th><th>Nodes</th><th>Communities</th></tr>
+      <tr><td>velu_isogeny_engine.py</td><td>19</td><td><code>0</code></td></tr><tr><td>werr_algebraic_sieve.py</td><td>17</td><td><code>1</code></td></tr><tr><td>steps</td><td>16</td><td><code>2</code></td></tr><tr><td>Adım 5: Künye ve Üstveri (Metadata) Girişi — Birebir Kopyala-Yapıştır</td><td>15</td><td><code>3</code></td></tr><tr><td>Werr Multi-Layer Algebraic Sieve &amp; Vélu Isogeny Engine: High-Rank Elliptic Curve Records</td><td>15</td><td><code>4</code></td></tr><tr><td>Adım 5: Künye ve Üstveri (Metadata) Girişi — Birebir Kopyala-Yapıştır</td><td>14</td><td><code>5</code></td></tr><tr><td>Werr Multi-Layer Algebraic Sieve &amp; Vélu Isogeny Engine: High-Rank Elliptic Curve Records</td><td>8</td><td><code>6</code></td></tr><tr><td>integer_roots_monic_cubic</td><td>5</td><td><code>7</code></td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Core Flow</h4>
+    <div class="arrow-chain">steps -&gt; velu_isogeny_engine.py -&gt; werr_algebraic_sieve.py -&gt; Adım 5: Künye ve Üstveri (Metadata) Girişi — Birebir Kopyala-Yapıştır -&gt; Werr Multi-Layer Algebraic Sieve &amp; Vélu Isogeny Engine: High-Rank Elliptic Curve Records -&gt; Adım 5: Künye ve Üstveri (Metadata) Girişi — Birebir Kopyala-Yapıştır -&gt; Werr Multi-Layer Algebraic Sieve &amp; Vélu Isogeny Engine: High-Rank Elliptic Curve Records</div>
+  </div>
+</div>
+<div class="grid">
+  <div class="card">
+    <h4>Graph Report Highlights</h4>
+    <ul>
+      <li>109 nodes · 119 edges · 8 communities</li>
+      <li>Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 1 edges (avg confidence: 0.85)</li>
+      <li>Token cost: 0 input · 0 output</li>
+      <li>1. `Adım 5: Künye ve Üstveri (Metadata) Girişi — Birebir Kopyala-Yapıştır` - 10 edges</li>
+      <li>2. `Adım 5: Künye ve Üstveri (Metadata) Girişi — Birebir Kopyala-Yapıştır` - 10 edges</li>
+      <li>3. `Werr Multi-Layer Algebraic Sieve &amp; Vélu Isogeny Engine: High-Rank Elliptic Curve Records` - 9 edges</li>
+    </ul>
+  </div>
+</div>
+<hr>
+<!-- ====== 2. velu_isogeny_engine.py ====== -->
+<h2 id="velu-isogeny-engine-py">2. velu_isogeny_engine.py</h2>
+<p>velu_isogeny_engine.py groups implementation around scripts, velu, isogeny, enginepy, mostly in scripts/velu_isogeny_engine.py, scripts/verify_leaderboard_audit.py, scripts/werr_algebraic_sieve.py. This section covers 19 nodes and 21 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: velu_isogeny_engine.py (19 nodes, 21 edges)
+    subgraph velu_isogeny_engine_py_scripts_velu_isogeny_engi_d2dcd77d["scripts/velu_isogeny_engine.py"]
+        scripts_velu_isogeny_engine_4f256e34("velu_isogeny_engine.py")
+        scripts_velu_isogeny_engine_find_2torsion_points_dbde5803("find_2torsion_points()<br/><small>scripts/velu_isogeny_engine.py</small>")
+        scripts_velu_isogeny_engine_weierstrass_invarian_88c4f8c3("weierstrass_invariants()<br/><small>scripts/velu_isogeny_engine.py</small>")
+        scripts_velu_isogeny_engine_canonical_key_from_c_3d9900bc("canonical_key_from_c4_c6()<br/><small>scripts/velu_isogeny_engine.py</small>")
+        scripts_velu_isogeny_engine_velu_2isogeny_c3d0f9f5("velu_2isogeny()<br/><small>scripts/velu_isogeny_engine.py</small>")
+        scripts_velu_isogeny_engine_rationale_127_ef4c0077("Apply Velu's 2-isogeny formula for 2-to...<br/><small>scripts/velu_isogeny_engine.py</small>")
+        scripts_velu_isogeny_engine_rationale_142_683268c7("Compute global minimal c4:c6 key if bad...<br/><small>scripts/velu_isogeny_engine.py</small>")
+        scripts_velu_isogeny_engine_rationale_44_3c3ef9ec("Find rational 2-torsion points P = (x0,...<br/><small>scripts/velu_isogeny_engine.py</small>")
+        scripts_velu_isogeny_engine_rationale_2_a304e1da("Scan elliptic-rank.icarm.cloud database...<br/><small>scripts/velu_isogeny_engine.py</small>")
+    end
+    subgraph velu_isogeny_engine_py_External_generated_8ac10506["External / generated"]
+        math_7a488390("math")
+        sys_b4c56ee8("sys")
+        urllib_request_9b0f82b7("urllib_request")
+        fractions_d47ef507("fractions")
+        re_c387c982("re")
+        collections_fa4b9d69("collections")
+    end
+    subgraph velu_isogeny_engine_py_scripts_verify_leaderboar_61c28308["scripts/verify_leaderboard_audit.py"]
+        scripts_verify_leaderboard_audit_b3a64ff6("verify_leaderboard_audit.py")
+        scripts_verify_leaderboard_audit_metric_val_6bf8406c("metric_val()<br/><small>scripts/verify_leaderboard_audit.py</small>")
+    end
+    scripts_werr_algebraic_sieve_sieve_primes_up_to_dd24e071("sieve_primes_up_to()<br/><small>scripts/werr_algebraic_sieve.py</small>")
+    scripts_velu_isogeny_engine_find_2torsion_points_dbde5803 -->|calls| scripts_velu_isogeny_engine_weierstrass_invarian_88c4f8c3
+    scripts_werr_algebraic_sieve_sieve_primes_up_to_dd24e071 -->|calls| math_7a488390
+    scripts_velu_isogeny_engine_4f256e34 -->|imports| sys_b4c56ee8
+    scripts_velu_isogeny_engine_4f256e34 -->|imports| urllib_request_9b0f82b7
+    scripts_velu_isogeny_engine_4f256e34 -->|imports| math_7a488390
+    scripts_velu_isogeny_engine_4f256e34 -->|imports| fractions_d47ef507
+    scripts_verify_leaderboard_audit_b3a64ff6 -->|imports| math_7a488390
+    scripts_verify_leaderboard_audit_b3a64ff6 -->|imports| re_c387c982
+    scripts_verify_leaderboard_audit_b3a64ff6 -->|imports| sys_b4c56ee8
+    scripts_verify_leaderboard_audit_b3a64ff6 -->|imports| urllib_request_9b0f82b7
+    scripts_verify_leaderboard_audit_b3a64ff6 -->|imports| collections_fa4b9d69
+    %% Omitted for readability: 1 nodes, 0 edges
+    class scripts_velu_isogeny_engine_4f256e34 module;
+    class scripts_velu_isogeny_engine_find_2torsion_points_dbde5803 function;
+    class scripts_velu_isogeny_engine_weierstrass_invarian_88c4f8c3 function;
+    class scripts_velu_isogeny_engine_canonical_key_from_c_3d9900bc function;
+    class scripts_velu_isogeny_engine_velu_2isogeny_c3d0f9f5 function;
+    class scripts_velu_isogeny_engine_rationale_127_ef4c0077 concept;
+    class scripts_velu_isogeny_engine_rationale_142_683268c7 concept;
+    class scripts_velu_isogeny_engine_rationale_44_3c3ef9ec concept;
+    class scripts_velu_isogeny_engine_rationale_2_a304e1da concept;
+    class math_7a488390 function;
+    class sys_b4c56ee8 function;
+    class urllib_request_9b0f82b7 function;
+    class fractions_d47ef507 function;
+    class re_c387c982 function;
+    class collections_fa4b9d69 function;
+    class scripts_verify_leaderboard_audit_b3a64ff6 module;
+    class scripts_verify_leaderboard_audit_metric_val_6bf8406c function;
+    class scripts_werr_algebraic_sieve_sieve_primes_up_to_dd24e071 function;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>canonical_key_from_c4_c6()</code><br><small style="color:var(--muted)">scripts/velu_isogeny_engine.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>canonical_key_from_c4_c6() node in scripts/velu_isogeny_engine.py.</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><code>find_2torsion_points()</code><br><small style="color:var(--muted)">scripts/velu_isogeny_engine.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>weierstrass_invariants()</code><br><small style="color:var(--muted)">scripts/velu_isogeny_engine.py</small></td>
+  <td>find_2torsion_points() node in scripts/velu_isogeny_engine.py.</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td><code>velu_2isogeny()</code><br><small style="color:var(--muted)">scripts/velu_isogeny_engine.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>velu_2isogeny() node in scripts/velu_isogeny_engine.py.</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td><code>weierstrass_invariants()</code><br><small style="color:var(--muted)">scripts/velu_isogeny_engine.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>find_2torsion_points()</code><br><small style="color:var(--muted)">scripts/velu_isogeny_engine.py</small></td>
+  <td>No direct outbound edge</td>
+  <td>weierstrass_invariants() node in scripts/velu_isogeny_engine.py.</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td><code>metric_val()</code><br><small style="color:var(--muted)">scripts/verify_leaderboard_audit.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>metric_val() node in scripts/verify_leaderboard_audit.py.</td>
+</tr>
+<tr>
+  <td>6</td>
+  <td><code>sieve_primes_up_to()</code><br><small style="color:var(--muted)">scripts/werr_algebraic_sieve.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>math</code></td>
+  <td>sieve_primes_up_to() node in scripts/werr_algebraic_sieve.py.</td>
+</tr>
+<tr>
+  <td>7</td>
+  <td><code>velu_isogeny_engine.py</code><br><small style="color:var(--muted)">scripts/velu_isogeny_engine.py</small></td>
+  <td><span class="tag tag-class">Module</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>fractions</code><br><code>json</code><br><code>math</code><br>+2 more</td>
+  <td>Module file in scripts/velu_isogeny_engine.py.</td>
+</tr>
+<tr>
+  <td>8</td>
+  <td><code>verify_leaderboard_audit.py</code><br><small style="color:var(--muted)">scripts/verify_leaderboard_audit.py</small></td>
+  <td><span class="tag tag-class">Module</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>collections</code><br><code>json</code><br><code>math</code><br>+3 more</td>
+  <td>Module file in scripts/verify_leaderboard_audit.py.</td>
+</tr>
+<tr>
+  <td>9</td>
+  <td><code>Apply Velu&#x27;s 2-isogeny formula for 2-torsion point T = (x0, y0).</code><br><small style="color:var(--muted)">scripts/velu_isogeny_engine.py</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Design note for Apply Velu&#x27;s 2-isogeny formula for 2-torsion point T = (x0, y0)..</td>
+</tr>
+<tr>
+  <td>10</td>
+  <td><code>Compute global minimal c4:c6 key if bad_primes are known.</code><br><small style="color:var(--muted)">scripts/velu_isogeny_engine.py</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Design note for Compute global minimal c4:c6 key if bad_primes are known..</td>
+</tr>
+<tr>
+  <td>11</td>
+  <td><code>Scan elliptic-rank.icarm.cloud database.json for: 1. Unsubmitted Velu…</code><br><small style="color:var(--muted)">scripts/velu_isogeny_engine.py</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Design note for Scan elliptic-rank.icarm.cloud database.json for: 1. Unsubmitted Velu….</td>
+</tr>
+<tr>
+  <td>12</td>
+  <td><code>Find rational 2-torsion points P = (x0, y0) on y^2 + a1 x y + a3 y = x^3 + a2…</code><br><small style="color:var(--muted)">scripts/velu_isogeny_engine.py</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Design note for Find rational 2-torsion points P = (x0, y0) on y^2 + a1 x y + a3 y = x^3 + a2….</td>
+</tr>
+<tr>
+  <td>13</td>
+  <td><code>Exact audit of Volkan Dagli&#x27;s (user/114) 230 curves (#4308..#4537) across every…</code><br><small style="color:var(--muted)">scripts/verify_leaderboard_audit.py</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Design note for Exact audit of Volkan Dagli&#x27;s (user/114) 230 curves (#4308..#4537) across every….</td>
+</tr>
+<tr>
+  <td>14</td>
+  <td><code>collections</code><br><small style="color:var(--muted)"></small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>verify_leaderboard_audit.py</code><br><small style="color:var(--muted)">scripts/verify_leaderboard_audit.py</small></td>
+  <td>No direct outbound edge</td>
+  <td>collections node in project.</td>
+</tr>
+<tr>
+  <td>15</td>
+  <td><code>fractions</code><br><small style="color:var(--muted)"></small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>velu_isogeny_engine.py</code><br><small style="color:var(--muted)">scripts/velu_isogeny_engine.py</small><br><code>werr_algebraic_sieve.py</code><br><small style="color:var(--muted)">scripts/werr_algebraic_sieve.py</small></td>
+  <td>No direct outbound edge</td>
+  <td>fractions node in project.</td>
+</tr>
+<tr>
+  <td>16</td>
+  <td><code>math</code><br><small style="color:var(--muted)"></small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>integer_roots_monic_cubic()</code><br><small style="color:var(--muted)">scripts/velu_isogeny_engine.py</small><br><code>sieve_primes_up_to()</code><br><small style="color:var(--muted)">scripts/werr_algebraic_sieve.py</small><br><code>velu_isogeny_engine.py</code><br><small style="color:var(--muted)">scripts/velu_isogeny_engine.py</small><br>+2 more</td>
+  <td>No direct outbound edge</td>
+  <td>math node in project.</td>
+</tr>
+<tr>
+  <td>17</td>
+  <td><code>re</code><br><small style="color:var(--muted)"></small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>verify_leaderboard_audit.py</code><br><small style="color:var(--muted)">scripts/verify_leaderboard_audit.py</small></td>
+  <td>No direct outbound edge</td>
+  <td>re node in project.</td>
+</tr>
+<tr>
+  <td>18</td>
+  <td><code>sys</code><br><small style="color:var(--muted)"></small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>velu_isogeny_engine.py</code><br><small style="color:var(--muted)">scripts/velu_isogeny_engine.py</small><br><code>verify_leaderboard_audit.py</code><br><small style="color:var(--muted)">scripts/verify_leaderboard_audit.py</small><br><code>werr_algebraic_sieve.py</code><br><small style="color:var(--muted)">scripts/werr_algebraic_sieve.py</small></td>
+  <td>No direct outbound edge</td>
+  <td>sys node in project.</td>
+</tr>
+<tr>
+  <td>19</td>
+  <td><code>urllib_request</code><br><small style="color:var(--muted)"></small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>velu_isogeny_engine.py</code><br><small style="color:var(--muted)">scripts/velu_isogeny_engine.py</small><br><code>verify_leaderboard_audit.py</code><br><small style="color:var(--muted)">scripts/verify_leaderboard_audit.py</small><br><code>werr_algebraic_sieve.py</code><br><small style="color:var(--muted)">scripts/werr_algebraic_sieve.py</small></td>
+  <td>No direct outbound edge</td>
+  <td>urllib_request node in project.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>scripts/velu_isogeny_engine.py</code></td><td>9 nodes</td></tr>
+<tr><td><code>scripts/verify_leaderboard_audit.py</code></td><td>3 nodes</td></tr>
+<tr><td><code>scripts/werr_algebraic_sieve.py</code></td><td>1 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: imports x7, contains x5, explains x5, calls x2. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 3. werr_algebraic_sieve.py ====== -->
+<h2 id="werr-algebraic-sieve-py">3. werr_algebraic_sieve.py</h2>
+<p>werr_algebraic_sieve.py groups implementation around werr, algebraic, sievepy, scripts, mostly in scripts/werr_algebraic_sieve.py. This section covers 17 nodes and 20 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: werr_algebraic_sieve.py (17 nodes, 20 edges)
+    subgraph werr_algebraic_sieve_py_scripts_werr_algebraic_s_62ededa1["scripts/werr_algebraic_sieve.py"]
+        scripts_werr_algebraic_sieve_fe6cc361("werr_algebraic_sieve.py")
+        scripts_werr_algebraic_sieve_scale_to_integer_ai_c12254f0("scale_to_integer_ainvs()<br/><small>scripts/werr_algebraic_sieve.py</small>")
+        scripts_werr_algebraic_sieve_submit_curve_api_8c90339b("submit_curve_api()<br/><small>scripts/werr_algebraic_sieve.py</small>")
+        scripts_werr_algebraic_sieve_velu_isogeny_from_s_d2da6767("velu_isogeny_from_subgroup()<br/><small>scripts/werr_algebraic_sieve.py</small>")
+        scripts_werr_algebraic_sieve_velu_isogeny_from_s_997b789c("transport_point()<br/><small>scripts/werr_algebraic_sieve.py</small>")
+        scripts_werr_algebraic_sieve_format_frac_6ac3ca8e("format_frac()<br/><small>scripts/werr_algebraic_sieve.py</small>")
+        scripts_werr_algebraic_sieve_neg_point_63cc047d("neg_point()<br/><small>scripts/werr_algebraic_sieve.py</small>")
+        scripts_werr_algebraic_sieve_add_points_ad0b9a8b("add_points()<br/><small>scripts/werr_algebraic_sieve.py</small>")
+        scripts_werr_algebraic_sieve_on_curve_7e3522f8("on_curve()<br/><small>scripts/werr_algebraic_sieve.py</small>")
+        scripts_werr_algebraic_sieve_rationale_79_88267615("Given a finite subgroup G \\ O = subg...<br/><small>scripts/werr_algebraic_sieve.py</small>")
+        scripts_werr_algebraic_sieve_rationale_142_ce4ba458("If ainvs has fractional entries (e.g. f...<br/><small>scripts/werr_algebraic_sieve.py</small>")
+        scripts_werr_algebraic_sieve_rationale_2_8c2726b8("Werr Elliptic Rank Engine — Stage 1: Un...<br/><small>scripts/werr_algebraic_sieve.py</small>")
+    end
+    subgraph werr_algebraic_sieve_py_External_generated_2d7d2b3f["External / generated"]
+        json_05d97e6e("json")
+        time_714eea0f("time")
+        urllib_error_e9e7d2ca("urllib_error")
+        werr_multilayer_sieve_synthesis_8a5c80eb("multilayer sieve synthesis")
+        scan_velu_and_sieve_targets_32f9eb42("scan_velu_and_sieve_targets")
+    end
+    scripts_werr_algebraic_sieve_scale_to_integer_ai_c12254f0 -->|calls| scripts_werr_algebraic_sieve_format_frac_6ac3ca8e
+    scripts_werr_algebraic_sieve_submit_curve_api_8c90339b -->|calls| json_05d97e6e
+    scripts_werr_algebraic_sieve_velu_isogeny_from_s_d2da6767 -->|calls| scripts_werr_algebraic_sieve_neg_point_63cc047d
+    scripts_werr_algebraic_sieve_velu_isogeny_from_s_997b789c -->|calls| scripts_werr_algebraic_sieve_add_points_ad0b9a8b
+    scripts_werr_algebraic_sieve_fe6cc361 -->|imports| time_714eea0f
+    scripts_werr_algebraic_sieve_fe6cc361 -->|imports| urllib_error_e9e7d2ca
+    scripts_werr_algebraic_sieve_fe6cc361 -->|imports| json_05d97e6e
+    scripts_werr_algebraic_sieve_fe6cc361 -->|imports| werr_multilayer_sieve_synthesis_8a5c80eb
+    scripts_werr_algebraic_sieve_fe6cc361 -->|imports| scan_velu_and_sieve_targets_32f9eb42
+    class scripts_werr_algebraic_sieve_fe6cc361 module;
+    class scripts_werr_algebraic_sieve_scale_to_integer_ai_c12254f0 function;
+    class scripts_werr_algebraic_sieve_submit_curve_api_8c90339b api;
+    class scripts_werr_algebraic_sieve_velu_isogeny_from_s_d2da6767 function;
+    class scripts_werr_algebraic_sieve_velu_isogeny_from_s_997b789c function;
+    class scripts_werr_algebraic_sieve_format_frac_6ac3ca8e function;
+    class scripts_werr_algebraic_sieve_neg_point_63cc047d function;
+    class scripts_werr_algebraic_sieve_add_points_ad0b9a8b function;
+    class scripts_werr_algebraic_sieve_on_curve_7e3522f8 function;
+    class scripts_werr_algebraic_sieve_rationale_79_88267615 concept;
+    class scripts_werr_algebraic_sieve_rationale_142_ce4ba458 concept;
+    class scripts_werr_algebraic_sieve_rationale_2_8c2726b8 concept;
+    class json_05d97e6e function;
+    class time_714eea0f function;
+    class urllib_error_e9e7d2ca function;
+    class werr_multilayer_sieve_synthesis_8a5c80eb function;
+    class scan_velu_and_sieve_targets_32f9eb42 function;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>add_points()</code><br><small style="color:var(--muted)">scripts/werr_algebraic_sieve.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>transport_point()</code><br><small style="color:var(--muted)">scripts/werr_algebraic_sieve.py</small></td>
+  <td>No direct outbound edge</td>
+  <td>add_points() node in scripts/werr_algebraic_sieve.py.</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><code>format_frac()</code><br><small style="color:var(--muted)">scripts/werr_algebraic_sieve.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>scale_to_integer_ainvs()</code><br><small style="color:var(--muted)">scripts/werr_algebraic_sieve.py</small></td>
+  <td>No direct outbound edge</td>
+  <td>format_frac() node in scripts/werr_algebraic_sieve.py.</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td><code>neg_point()</code><br><small style="color:var(--muted)">scripts/werr_algebraic_sieve.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>velu_isogeny_from_subgroup()</code><br><small style="color:var(--muted)">scripts/werr_algebraic_sieve.py</small></td>
+  <td>No direct outbound edge</td>
+  <td>neg_point() node in scripts/werr_algebraic_sieve.py.</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td><code>on_curve()</code><br><small style="color:var(--muted)">scripts/werr_algebraic_sieve.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>on_curve() node in scripts/werr_algebraic_sieve.py.</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td><code>scale_to_integer_ainvs()</code><br><small style="color:var(--muted)">scripts/werr_algebraic_sieve.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>format_frac()</code><br><small style="color:var(--muted)">scripts/werr_algebraic_sieve.py</small></td>
+  <td>scale_to_integer_ainvs() node in scripts/werr_algebraic_sieve.py.</td>
+</tr>
+<tr>
+  <td>6</td>
+  <td><code>submit_curve_api()</code><br><small style="color:var(--muted)">scripts/werr_algebraic_sieve.py</small></td>
+  <td><span class="tag tag-endpoint">API</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>json</code></td>
+  <td>submit_curve_api() node in scripts/werr_algebraic_sieve.py.</td>
+</tr>
+<tr>
+  <td>7</td>
+  <td><code>velu_isogeny_from_subgroup()</code><br><small style="color:var(--muted)">scripts/werr_algebraic_sieve.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>neg_point()</code><br><small style="color:var(--muted)">scripts/werr_algebraic_sieve.py</small><br><code>transport_point()</code><br><small style="color:var(--muted)">scripts/werr_algebraic_sieve.py</small></td>
+  <td>velu_isogeny_from_subgroup() node in scripts/werr_algebraic_sieve.py.</td>
+</tr>
+<tr>
+  <td>8</td>
+  <td><code>transport_point()</code><br><small style="color:var(--muted)">scripts/werr_algebraic_sieve.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>velu_isogeny_from_subgroup()</code><br><small style="color:var(--muted)">scripts/werr_algebraic_sieve.py</small></td>
+  <td><code>add_points()</code><br><small style="color:var(--muted)">scripts/werr_algebraic_sieve.py</small></td>
+  <td>transport_point() node in scripts/werr_algebraic_sieve.py.</td>
+</tr>
+<tr>
+  <td>9</td>
+  <td><code>werr_algebraic_sieve.py</code><br><small style="color:var(--muted)">scripts/werr_algebraic_sieve.py</small></td>
+  <td><span class="tag tag-class">Module</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>fractions</code><br><code>json</code><br><code>math</code><br>+6 more</td>
+  <td>Module file in scripts/werr_algebraic_sieve.py.</td>
+</tr>
+<tr>
+  <td>10</td>
+  <td><code>If ainvs has fractional entries (e.g. from x0 = X/4), scale by u=2^k*3^m so all…</code><br><small style="color:var(--muted)">scripts/werr_algebraic_sieve.py</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Design note for If ainvs has fractional entries (e.g. from x0 = X/4), scale by u=2^k*3^m so all….</td>
+</tr>
+<tr>
+  <td>11</td>
+  <td><code>Werr Elliptic Rank Engine — Stage 1: Universal Velu Isogeny Transport (n = 2,…</code><br><small style="color:var(--muted)">scripts/werr_algebraic_sieve.py</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Design note for Werr Elliptic Rank Engine — Stage 1: Universal Velu Isogeny Transport (n = 2,….</td>
+</tr>
+<tr>
+  <td>12</td>
+  <td><code>Given a finite subgroup G \\ {O} = subgroup_non_zero of rational points on…</code><br><small style="color:var(--muted)">scripts/werr_algebraic_sieve.py</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Design note for Given a finite subgroup G \\ {O} = subgroup_non_zero of rational points on….</td>
+</tr>
+<tr>
+  <td>13</td>
+  <td><code>json</code><br><small style="color:var(--muted)"></small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>submit_curve_api()</code><br><small style="color:var(--muted)">scripts/werr_algebraic_sieve.py</small><br><code>velu_isogeny_engine.py</code><br><small style="color:var(--muted)">scripts/velu_isogeny_engine.py</small><br><code>verify_leaderboard_audit.py</code><br><small style="color:var(--muted)">scripts/verify_leaderboard_audit.py</small><br>+1 more</td>
+  <td>No direct outbound edge</td>
+  <td>json node in project.</td>
+</tr>
+<tr>
+  <td>14</td>
+  <td><code>scan_velu_and_sieve_targets</code><br><small style="color:var(--muted)"></small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>werr_algebraic_sieve.py</code><br><small style="color:var(--muted)">scripts/werr_algebraic_sieve.py</small></td>
+  <td>No direct outbound edge</td>
+  <td>Starts scanning or handles scan status.</td>
+</tr>
+<tr>
+  <td>15</td>
+  <td><code>time</code><br><small style="color:var(--muted)"></small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>werr_algebraic_sieve.py</code><br><small style="color:var(--muted)">scripts/werr_algebraic_sieve.py</small></td>
+  <td>No direct outbound edge</td>
+  <td>time node in project.</td>
+</tr>
+<tr>
+  <td>16</td>
+  <td><code>urllib_error</code><br><small style="color:var(--muted)"></small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>werr_algebraic_sieve.py</code><br><small style="color:var(--muted)">scripts/werr_algebraic_sieve.py</small></td>
+  <td>No direct outbound edge</td>
+  <td>urllib_error node in project.</td>
+</tr>
+<tr>
+  <td>17</td>
+  <td><code>werr_multilayer_sieve_synthesis</code><br><small style="color:var(--muted)"></small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>werr_algebraic_sieve.py</code><br><small style="color:var(--muted)">scripts/werr_algebraic_sieve.py</small></td>
+  <td>No direct outbound edge</td>
+  <td>werr_multilayer_sieve_synthesis node in project.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>scripts/werr_algebraic_sieve.py</code></td><td>12 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x7, calls x4, imports x3, explains x3. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 4. steps ====== -->
+<h2 id="steps">4. steps</h2>
+<p>steps groups implementation around ciyml, github, workflows, name, mostly in .github/workflows/ci.yml. This section covers 16 nodes and 15 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: steps (16 nodes, 15 edges)
+    github_workflows_ci_verify_steps_963cf73c("steps<br/><small>.github/workflows/ci.yml</small>")
+    github_workflows_ci_92e87ad6("ci.yml")
+    github_workflows_ci_jobs_verify_53c72ca9("verify<br/><small>.github/workflows/ci.yml</small>")
+    github_workflows_ci_on_088738fe("on<br/><small>.github/workflows/ci.yml</small>")
+    github_workflows_ci_jobs_8033278d("jobs<br/><small>.github/workflows/ci.yml</small>")
+    github_workflows_ci_on_pull_request_fbd85377("pull_request<br/><small>.github/workflows/ci.yml</small>")
+    github_workflows_ci_name_cadda90f("name<br/><small>.github/workflows/ci.yml</small>")
+    github_workflows_ci_verify_runs_on_c48be822("runs-on<br/><small>.github/workflows/ci.yml</small>")
+    github_workflows_ci_on_push_45c41402("push<br/><small>.github/workflows/ci.yml</small>")
+    github_workflows_ci_pull_request_branches_463c4abf("branches<br/><small>.github/workflows/ci.yml</small>")
+    github_workflows_ci_push_branches_2e7c25fa("branches<br/><small>.github/workflows/ci.yml</small>")
+    github_workflows_ci_steps_with_cc9cbfa2("with<br/><small>.github/workflows/ci.yml</small>")
+    github_workflows_ci_with_python_version_ff53e31f("python-version<br/><small>.github/workflows/ci.yml</small>")
+    github_workflows_ci_steps_uses_e84abccc("uses<br/><small>.github/workflows/ci.yml</small>")
+    github_workflows_ci_steps_name_404cd4e3("name<br/><small>.github/workflows/ci.yml</small>")
+    github_workflows_ci_steps_run_d85a849c("run<br/><small>.github/workflows/ci.yml</small>")
+    github_workflows_ci_92e87ad6 -->|contains| github_workflows_ci_name_cadda90f
+    github_workflows_ci_92e87ad6 -->|contains| github_workflows_ci_on_088738fe
+    github_workflows_ci_92e87ad6 -->|contains| github_workflows_ci_jobs_8033278d
+    github_workflows_ci_jobs_8033278d -->|contains| github_workflows_ci_jobs_verify_53c72ca9
+    github_workflows_ci_jobs_verify_53c72ca9 -->|contains| github_workflows_ci_verify_runs_on_c48be822
+    github_workflows_ci_jobs_verify_53c72ca9 -->|contains| github_workflows_ci_verify_steps_963cf73c
+    github_workflows_ci_on_088738fe -->|contains| github_workflows_ci_on_push_45c41402
+    github_workflows_ci_on_088738fe -->|contains| github_workflows_ci_on_pull_request_fbd85377
+    github_workflows_ci_on_pull_request_fbd85377 -->|contains| github_workflows_ci_pull_request_branches_463c4abf
+    github_workflows_ci_on_push_45c41402 -->|contains| github_workflows_ci_push_branches_2e7c25fa
+    github_workflows_ci_steps_with_cc9cbfa2 -->|contains| github_workflows_ci_with_python_version_ff53e31f
+    github_workflows_ci_verify_steps_963cf73c -->|contains| github_workflows_ci_steps_uses_e84abccc
+    github_workflows_ci_verify_steps_963cf73c -->|contains| github_workflows_ci_steps_with_cc9cbfa2
+    github_workflows_ci_verify_steps_963cf73c -->|contains| github_workflows_ci_steps_name_404cd4e3
+    github_workflows_ci_verify_steps_963cf73c -->|contains| github_workflows_ci_steps_run_d85a849c
+    class github_workflows_ci_verify_steps_963cf73c function;
+    class github_workflows_ci_92e87ad6 function;
+    class github_workflows_ci_jobs_verify_53c72ca9 function;
+    class github_workflows_ci_on_088738fe function;
+    class github_workflows_ci_jobs_8033278d function;
+    class github_workflows_ci_on_pull_request_fbd85377 function;
+    class github_workflows_ci_name_cadda90f function;
+    class github_workflows_ci_verify_runs_on_c48be822 function;
+    class github_workflows_ci_on_push_45c41402 function;
+    class github_workflows_ci_pull_request_branches_463c4abf function;
+    class github_workflows_ci_push_branches_2e7c25fa function;
+    class github_workflows_ci_steps_with_cc9cbfa2 function;
+    class github_workflows_ci_with_python_version_ff53e31f function;
+    class github_workflows_ci_steps_uses_e84abccc function;
+    class github_workflows_ci_steps_name_404cd4e3 function;
+    class github_workflows_ci_steps_run_d85a849c function;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>ci.yml</code><br><small style="color:var(--muted)">.github/workflows/ci.yml</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>ci.yml node in .github/workflows/ci.yml.</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><code>jobs</code><br><small style="color:var(--muted)">.github/workflows/ci.yml</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>jobs node in .github/workflows/ci.yml.</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td><code>verify</code><br><small style="color:var(--muted)">.github/workflows/ci.yml</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>verify node in .github/workflows/ci.yml.</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td><code>name</code><br><small style="color:var(--muted)">.github/workflows/ci.yml</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>name node in .github/workflows/ci.yml.</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td><code>on</code><br><small style="color:var(--muted)">.github/workflows/ci.yml</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>on node in .github/workflows/ci.yml.</td>
+</tr>
+<tr>
+  <td>6</td>
+  <td><code>pull_request</code><br><small style="color:var(--muted)">.github/workflows/ci.yml</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>pull_request node in .github/workflows/ci.yml.</td>
+</tr>
+<tr>
+  <td>7</td>
+  <td><code>push</code><br><small style="color:var(--muted)">.github/workflows/ci.yml</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>push node in .github/workflows/ci.yml.</td>
+</tr>
+<tr>
+  <td>8</td>
+  <td><code>branches</code><br><small style="color:var(--muted)">.github/workflows/ci.yml</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>branches node in .github/workflows/ci.yml.</td>
+</tr>
+<tr>
+  <td>9</td>
+  <td><code>branches</code><br><small style="color:var(--muted)">.github/workflows/ci.yml</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>branches node in .github/workflows/ci.yml.</td>
+</tr>
+<tr>
+  <td>10</td>
+  <td><code>name</code><br><small style="color:var(--muted)">.github/workflows/ci.yml</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>name node in .github/workflows/ci.yml.</td>
+</tr>
+<tr>
+  <td>11</td>
+  <td><code>run</code><br><small style="color:var(--muted)">.github/workflows/ci.yml</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>run node in .github/workflows/ci.yml.</td>
+</tr>
+<tr>
+  <td>12</td>
+  <td><code>uses</code><br><small style="color:var(--muted)">.github/workflows/ci.yml</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>uses node in .github/workflows/ci.yml.</td>
+</tr>
+<tr>
+  <td>13</td>
+  <td><code>with</code><br><small style="color:var(--muted)">.github/workflows/ci.yml</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>with node in .github/workflows/ci.yml.</td>
+</tr>
+<tr>
+  <td>14</td>
+  <td><code>runs-on</code><br><small style="color:var(--muted)">.github/workflows/ci.yml</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>runs-on node in .github/workflows/ci.yml.</td>
+</tr>
+<tr>
+  <td>15</td>
+  <td><code>steps</code><br><small style="color:var(--muted)">.github/workflows/ci.yml</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>steps node in .github/workflows/ci.yml.</td>
+</tr>
+<tr>
+  <td>16</td>
+  <td><code>python-version</code><br><small style="color:var(--muted)">.github/workflows/ci.yml</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>python-version node in .github/workflows/ci.yml.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>.github/workflows/ci.yml</code></td><td>16 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x15. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 5. Adım 5: Künye ve Üstveri (Metadata) Girişi — Birebir Kopyala-Yapıştır ====== -->
+<h2 id="ad-m-5-k-nye-ve-stveri-metadata-giri-i-birebir-k">5. Adım 5: Künye ve Üstveri (Metadata) Girişi — Birebir Kopyala-Yapıştır</h2>
+<p>Adım 5: Künye ve Üstveri (Metadata) Girişi — Birebir Kopyala-Yapıştır groups implementation around arxiv, package, yukleme, rehberimd, mostly in arxiv_package/ARXIV_YUKLEME_REHBERI.md. This section covers 15 nodes and 14 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: Adım 5: Künye ve Üstveri (Metadata) Girişi — Birebir Kopyala-Yapıştır (15 nodes, 14 edges)
+    arxiv_package_arxiv_yukleme_rehberi_ad_m_5_k_nye_ec5ae07a("Adım 5: Künye ve Üstveri (Metadata) Gir...<br/><small>arxiv_package/ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_package_arxiv_yukleme_rehberi_arxiv_ad_m_a_96f8a962("🚀 arXiv Adım Adım Yükleme Rehberi (Werr...<br/><small>arxiv_package/ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_package_arxiv_yukleme_rehberi_ekran_ekran_73781bfe("🧭 Ekran Ekran Gönderim Adımları<br/><small>arxiv_package/ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_package_arxiv_yukleme_rehberi_99ec23d3("package/ARXIV YUKLEME REHBERI.md<br/><small>arxiv_package/ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_package_arxiv_yukleme_rehberi_1_title_maka_4a54a52f("1. Title (Makale Başlığı)<br/><small>arxiv_package/ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_package_arxiv_yukleme_rehberi_2_authors_ya_50b98e1e("2. Authors (Yazarlar)<br/><small>arxiv_package/ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_package_arxiv_yukleme_rehberi_3_primary_cl_f98ee6e5("3. Primary Classification (Ana Kategori)<br/><small>arxiv_package/ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_package_arxiv_yukleme_rehberi_4_cross_list_a999f4d7("4. Cross-Lists / Secondary Categories (...<br/><small>arxiv_package/ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_package_arxiv_yukleme_rehberi_5_abstract_z_2134a4c8("5. Abstract (Özet Metni — Python len()...<br/><small>arxiv_package/ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_package_arxiv_yukleme_rehberi_6_comments_y_1495eeeb("6. Comments (Yorum / Ek Bilgi)<br/><small>arxiv_package/ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_package_arxiv_yukleme_rehberi_7_report_num_77bd4b00("7. Report Number (Rapor Numarası)<br/><small>arxiv_package/ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_package_arxiv_yukleme_rehberi_8_msc_class_3ac62a1e("8. MSC-class (Mathematics Subject Class...<br/><small>arxiv_package/ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_package_arxiv_yukleme_rehberi_9_acm_class_a9b3db5e("9. ACM-class (ACM 1998 Sınıflandırma Ko...<br/><small>arxiv_package/ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_package_arxiv_yukleme_rehberi_ad_m_3_dosya_74cf6e8c("Adım 3: Dosya Yükleme (Upload Files)<br/><small>arxiv_package/ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_package_arxiv_yukleme_rehberi_g_nderilecek_a6b69145("📂 Gönderilecek Dosya ve Konumu (En Temi...<br/><small>arxiv_package/ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_package_arxiv_yukleme_rehberi_99ec23d3 -->|contains| arxiv_package_arxiv_yukleme_rehberi_arxiv_ad_m_a_96f8a962
+    arxiv_package_arxiv_yukleme_rehberi_ad_m_5_k_nye_ec5ae07a -->|contains| arxiv_package_arxiv_yukleme_rehberi_1_title_maka_4a54a52f
+    arxiv_package_arxiv_yukleme_rehberi_ad_m_5_k_nye_ec5ae07a -->|contains| arxiv_package_arxiv_yukleme_rehberi_2_authors_ya_50b98e1e
+    arxiv_package_arxiv_yukleme_rehberi_ad_m_5_k_nye_ec5ae07a -->|contains| arxiv_package_arxiv_yukleme_rehberi_3_primary_cl_f98ee6e5
+    arxiv_package_arxiv_yukleme_rehberi_ad_m_5_k_nye_ec5ae07a -->|contains| arxiv_package_arxiv_yukleme_rehberi_4_cross_list_a999f4d7
+    arxiv_package_arxiv_yukleme_rehberi_ad_m_5_k_nye_ec5ae07a -->|contains| arxiv_package_arxiv_yukleme_rehberi_5_abstract_z_2134a4c8
+    arxiv_package_arxiv_yukleme_rehberi_ad_m_5_k_nye_ec5ae07a -->|contains| arxiv_package_arxiv_yukleme_rehberi_6_comments_y_1495eeeb
+    arxiv_package_arxiv_yukleme_rehberi_ad_m_5_k_nye_ec5ae07a -->|contains| arxiv_package_arxiv_yukleme_rehberi_7_report_num_77bd4b00
+    arxiv_package_arxiv_yukleme_rehberi_ad_m_5_k_nye_ec5ae07a -->|contains| arxiv_package_arxiv_yukleme_rehberi_8_msc_class_3ac62a1e
+    arxiv_package_arxiv_yukleme_rehberi_ad_m_5_k_nye_ec5ae07a -->|contains| arxiv_package_arxiv_yukleme_rehberi_9_acm_class_a9b3db5e
+    arxiv_package_arxiv_yukleme_rehberi_arxiv_ad_m_a_96f8a962 -->|contains| arxiv_package_arxiv_yukleme_rehberi_g_nderilecek_a6b69145
+    arxiv_package_arxiv_yukleme_rehberi_arxiv_ad_m_a_96f8a962 -->|contains| arxiv_package_arxiv_yukleme_rehberi_ekran_ekran_73781bfe
+    arxiv_package_arxiv_yukleme_rehberi_ekran_ekran_73781bfe -->|contains| arxiv_package_arxiv_yukleme_rehberi_ad_m_3_dosya_74cf6e8c
+    arxiv_package_arxiv_yukleme_rehberi_ekran_ekran_73781bfe -->|contains| arxiv_package_arxiv_yukleme_rehberi_ad_m_5_k_nye_ec5ae07a
+    class arxiv_package_arxiv_yukleme_rehberi_ad_m_5_k_nye_ec5ae07a concept;
+    class arxiv_package_arxiv_yukleme_rehberi_arxiv_ad_m_a_96f8a962 concept;
+    class arxiv_package_arxiv_yukleme_rehberi_ekran_ekran_73781bfe concept;
+    class arxiv_package_arxiv_yukleme_rehberi_99ec23d3 concept;
+    class arxiv_package_arxiv_yukleme_rehberi_1_title_maka_4a54a52f concept;
+    class arxiv_package_arxiv_yukleme_rehberi_2_authors_ya_50b98e1e concept;
+    class arxiv_package_arxiv_yukleme_rehberi_3_primary_cl_f98ee6e5 concept;
+    class arxiv_package_arxiv_yukleme_rehberi_4_cross_list_a999f4d7 concept;
+    class arxiv_package_arxiv_yukleme_rehberi_5_abstract_z_2134a4c8 concept;
+    class arxiv_package_arxiv_yukleme_rehberi_6_comments_y_1495eeeb concept;
+    class arxiv_package_arxiv_yukleme_rehberi_7_report_num_77bd4b00 concept;
+    class arxiv_package_arxiv_yukleme_rehberi_8_msc_class_3ac62a1e concept;
+    class arxiv_package_arxiv_yukleme_rehberi_9_acm_class_a9b3db5e concept;
+    class arxiv_package_arxiv_yukleme_rehberi_ad_m_3_dosya_74cf6e8c concept;
+    class arxiv_package_arxiv_yukleme_rehberi_g_nderilecek_a6b69145 concept;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>arxiv_package/ARXIV_YUKLEME_REHBERI.md</code><br><small style="color:var(--muted)">arxiv_package/ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing arxiv_package/ARXIV_YUKLEME_REHBERI.md.</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><code>1. Title (Makale Başlığı)</code><br><small style="color:var(--muted)">arxiv_package/ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 1. Title (Makale Başlığı).</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td><code>2. Authors (Yazarlar)</code><br><small style="color:var(--muted)">arxiv_package/ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 2. Authors (Yazarlar).</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td><code>3. Primary Classification (Ana Kategori)</code><br><small style="color:var(--muted)">arxiv_package/ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 3. Primary Classification (Ana Kategori).</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td><code>4. Cross-Lists / Secondary Categories (Çapraz Kategoriler)</code><br><small style="color:var(--muted)">arxiv_package/ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 4. Cross-Lists / Secondary Categories (Çapraz Kategoriler).</td>
+</tr>
+<tr>
+  <td>6</td>
+  <td><code>5. Abstract (Özet Metni — Python `len()` ile Doğrulanmış **1.298 Karakter** — 1.920 Sınırının 622 Karakter Altında)</code><br><small style="color:var(--muted)">arxiv_package/ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 5. Abstract (Özet Metni — Python `len()` ile Doğrulanmış **1.298 Karakter** — 1.920 Sınırının 622 Karakter Altında).</td>
+</tr>
+<tr>
+  <td>7</td>
+  <td><code>6. Comments (Yorum / Ek Bilgi)</code><br><small style="color:var(--muted)">arxiv_package/ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 6. Comments (Yorum / Ek Bilgi).</td>
+</tr>
+<tr>
+  <td>8</td>
+  <td><code>7. Report Number (Rapor Numarası)</code><br><small style="color:var(--muted)">arxiv_package/ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 7. Report Number (Rapor Numarası).</td>
+</tr>
+<tr>
+  <td>9</td>
+  <td><code>8. MSC-class (Mathematics Subject Classification 2020)</code><br><small style="color:var(--muted)">arxiv_package/ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 8. MSC-class (Mathematics Subject Classification 2020).</td>
+</tr>
+<tr>
+  <td>10</td>
+  <td><code>9. ACM-class (ACM 1998 Sınıflandırma Kodları — Noktalı Virgülle Ayrılmış)</code><br><small style="color:var(--muted)">arxiv_package/ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 9. ACM-class (ACM 1998 Sınıflandırma Kodları — Noktalı Virgülle Ayrılmış).</td>
+</tr>
+<tr>
+  <td>11</td>
+  <td><code>Adım 3: Dosya Yükleme (Upload Files)</code><br><small style="color:var(--muted)">arxiv_package/ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Adım 3: Dosya Yükleme (Upload Files).</td>
+</tr>
+<tr>
+  <td>12</td>
+  <td><code>Adım 5: Künye ve Üstveri (Metadata) Girişi — Birebir Kopyala-Yapıştır</code><br><small style="color:var(--muted)">arxiv_package/ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Adım 5: Künye ve Üstveri (Metadata) Girişi — Birebir Kopyala-Yapıştır.</td>
+</tr>
+<tr>
+  <td>13</td>
+  <td><code>🚀 arXiv Adım Adım Yükleme Rehberi (Werr Multi-Layer Sieve &amp; Vélu Isogeny Engine)</code><br><small style="color:var(--muted)">arxiv_package/ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 🚀 arXiv Adım Adım Yükleme Rehberi (Werr Multi-Layer Sieve &amp; Vélu Isogeny Engine).</td>
+</tr>
+<tr>
+  <td>14</td>
+  <td><code>🧭 Ekran Ekran Gönderim Adımları</code><br><small style="color:var(--muted)">arxiv_package/ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 🧭 Ekran Ekran Gönderim Adımları.</td>
+</tr>
+<tr>
+  <td>15</td>
+  <td><code>📂 Gönderilecek Dosya ve Konumu (En Temiz Yöntem: Doğrudan `.tex` Dosyası)</code><br><small style="color:var(--muted)">arxiv_package/ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 📂 Gönderilecek Dosya ve Konumu (En Temiz Yöntem: Doğrudan `.tex` Dosyası).</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>arxiv_package/ARXIV_YUKLEME_REHBERI.md</code></td><td>15 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x14. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 6. Werr Multi-Layer Algebraic Sieve & Vélu Isogeny Engine: High-Rank Elliptic Curve Records ====== -->
+<h2 id="werr-multi-layer-algebraic-sieve-v-lu-isogeny-en">6. Werr Multi-Layer Algebraic Sieve &amp; Vélu Isogeny Engine: High-Rank Elliptic Curve Records</h2>
+<p>Werr Multi-Layer Algebraic Sieve &amp; Vélu Isogeny Engine: High-Rank Elliptic Curve Records groups implementation around readmemd, records, formal, chain, mostly in README.md, ARXIV_YUKLEME_REHBERI.md. This section covers 15 nodes and 14 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: Werr Multi-Layer Algebraic Sieve &amp; Vélu Isogeny Engine: High-Rank Elliptic Curve Records (15 nodes, 14 edges)
+    subgraph werr_multi_layer_algebraic_sieve_v_lu_isogeny_en_4e187182["README.md"]
+        readme_werr_multi_layer_algebraic_sieve_v_lu_iso_02d9ed8a("Werr Multi-Layer Algebraic Sieve &amp; Vélu...<br/><small>README.md</small>")
+        readme_global_records_formal_proofs_curated_awes_d0dd0738("🏆 Global Records, Formal Proofs, Curate...<br/><small>README.md</small>")
+        readme_f78a71af("README.md")
+        readme_executive_summary_official_public_certifi_5a315b74("🏛️ Executive Summary &amp; Official Public...<br/><small>README.md</small>")
+        readme_key_official_achievements_on_elliptic_ran_caa09155("🏆 Key Official Achievements on ellipti...<br/><small>README.md</small>")
+        readme_1_certified_mathematical_records_formal_v_655b5a99("1. Certified Mathematical Records &amp; For...<br/><small>README.md</small>")
+        readme_2_curated_ecosystem_recognitions_benchmar_7e51ad8a("2. Curated Ecosystem Recognitions &amp; Ben...<br/><small>README.md</small>")
+        readme_3_sovereign_on_chain_deployments_werrium_522e003a("3. Sovereign On-Chain Deployments (Wer...<br/><small>README.md</small>")
+        readme_30_second_quick_start_0a5c97eb("⚡ 30-Second Quick Start<br/><small>README.md</small>")
+        readme_associated_formal_verification_world_reco_d90ed0d3("🏛️ Associated Formal Verification, Worl...<br/><small>README.md</small>")
+        readme_canonical_authors_institutional_affiliati_a5ecfd6d("👥 Canonical Authors &amp; Institutional Aff...<br/><small>README.md</small>")
+        readme_summary_of_1_gold_records_30_first_place_c0fb11b1("📊 Summary of 1 (Gold) Records (30 Fi...<br/><small>README.md</small>")
+        readme_citation_permanent_record_cad0cc26("📜 Citation &amp; Permanent Record<br/><small>README.md</small>")
+        readme_mathematical_foundations_scientific_linea_18cf0c50("🤝 Mathematical Foundations, Scientific...<br/><small>README.md</small>")
+    end
+    arxiv_yukleme_rehberi_85d251cd("ARXIV_YUKLEME_REHBERI.md")
+    readme_f78a71af -->|references| arxiv_yukleme_rehberi_85d251cd
+    readme_f78a71af -->|contains| readme_werr_multi_layer_algebraic_sieve_v_lu_iso_02d9ed8a
+    readme_executive_summary_official_public_certifi_5a315b74 -->|contains| readme_key_official_achievements_on_elliptic_ran_caa09155
+    readme_global_records_formal_proofs_curated_awes_d0dd0738 -->|contains| readme_1_certified_mathematical_records_formal_v_655b5a99
+    readme_global_records_formal_proofs_curated_awes_d0dd0738 -->|contains| readme_2_curated_ecosystem_recognitions_benchmar_7e51ad8a
+    readme_global_records_formal_proofs_curated_awes_d0dd0738 -->|contains| readme_3_sovereign_on_chain_deployments_werrium_522e003a
+    readme_werr_multi_layer_algebraic_sieve_v_lu_iso_02d9ed8a -->|contains| readme_canonical_authors_institutional_affiliati_a5ecfd6d
+    readme_werr_multi_layer_algebraic_sieve_v_lu_iso_02d9ed8a -->|contains| readme_citation_permanent_record_cad0cc26
+    readme_werr_multi_layer_algebraic_sieve_v_lu_iso_02d9ed8a -->|contains| readme_associated_formal_verification_world_reco_d90ed0d3
+    readme_werr_multi_layer_algebraic_sieve_v_lu_iso_02d9ed8a -->|contains| readme_global_records_formal_proofs_curated_awes_d0dd0738
+    readme_werr_multi_layer_algebraic_sieve_v_lu_iso_02d9ed8a -->|contains| readme_30_second_quick_start_0a5c97eb
+    readme_werr_multi_layer_algebraic_sieve_v_lu_iso_02d9ed8a -->|contains| readme_executive_summary_official_public_certifi_5a315b74
+    readme_werr_multi_layer_algebraic_sieve_v_lu_iso_02d9ed8a -->|contains| readme_mathematical_foundations_scientific_linea_18cf0c50
+    readme_werr_multi_layer_algebraic_sieve_v_lu_iso_02d9ed8a -->|contains| readme_summary_of_1_gold_records_30_first_place_c0fb11b1
+    class readme_werr_multi_layer_algebraic_sieve_v_lu_iso_02d9ed8a concept;
+    class readme_global_records_formal_proofs_curated_awes_d0dd0738 concept;
+    class readme_f78a71af concept;
+    class readme_executive_summary_official_public_certifi_5a315b74 concept;
+    class readme_key_official_achievements_on_elliptic_ran_caa09155 concept;
+    class readme_1_certified_mathematical_records_formal_v_655b5a99 concept;
+    class readme_2_curated_ecosystem_recognitions_benchmar_7e51ad8a concept;
+    class readme_3_sovereign_on_chain_deployments_werrium_522e003a concept;
+    class readme_30_second_quick_start_0a5c97eb concept;
+    class readme_associated_formal_verification_world_reco_d90ed0d3 concept;
+    class readme_canonical_authors_institutional_affiliati_a5ecfd6d concept;
+    class readme_summary_of_1_gold_records_30_first_place_c0fb11b1 concept;
+    class readme_citation_permanent_record_cad0cc26 concept;
+    class readme_mathematical_foundations_scientific_linea_18cf0c50 concept;
+    class arxiv_yukleme_rehberi_85d251cd concept;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>ARXIV_YUKLEME_REHBERI.md</code><br><small style="color:var(--muted)">ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing ARXIV_YUKLEME_REHBERI.md.</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><code>README.md</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing README.md.</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td><code>1. Certified Mathematical Records &amp; Formal Verification (`0 sorry`)</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 1. Certified Mathematical Records &amp; Formal Verification (`0 sorry`).</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td><code>2. Curated Ecosystem Recognitions &amp; Benchmark Evaluations</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 2. Curated Ecosystem Recognitions &amp; Benchmark Evaluations.</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td><code>⚡ 30-Second Quick Start</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing ⚡ 30-Second Quick Start.</td>
+</tr>
+<tr>
+  <td>6</td>
+  <td><code>3. Sovereign On-Chain Deployments (`Werrium / $WERR`), Multi-Chain Testnets &amp; Grant Pipelines</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 3. Sovereign On-Chain Deployments (`Werrium / $WERR`), Multi-Chain Testnets &amp; Grant Pipelines.</td>
+</tr>
+<tr>
+  <td>7</td>
+  <td><code>🏛️ Associated Formal Verification, World Records &amp; Scientific Corpus</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 🏛️ Associated Formal Verification, World Records &amp; Scientific Corpus.</td>
+</tr>
+<tr>
+  <td>8</td>
+  <td><code>👥 Canonical Authors &amp; Institutional Affiliations</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 👥 Canonical Authors &amp; Institutional Affiliations.</td>
+</tr>
+<tr>
+  <td>9</td>
+  <td><code>📜 Citation &amp; Permanent Record</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 📜 Citation &amp; Permanent Record.</td>
+</tr>
+<tr>
+  <td>10</td>
+  <td><code>🏛️ Executive Summary &amp; Official Public Certification</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 🏛️ Executive Summary &amp; Official Public Certification.</td>
+</tr>
+<tr>
+  <td>11</td>
+  <td><code>🏆 Global Records, Formal Proofs, Curated Awesome Merges &amp; On-Chain Infrastructure</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 🏆 Global Records, Formal Proofs, Curated Awesome Merges &amp; On-Chain Infrastructure.</td>
+</tr>
+<tr>
+  <td>12</td>
+  <td><code>🏆 Key Official Achievements on `elliptic-rank.icarm.cloud`</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 🏆 Key Official Achievements on `elliptic-rank.icarm.cloud`.</td>
+</tr>
+<tr>
+  <td>13</td>
+  <td><code>🤝 Mathematical Foundations, Scientific Lineage &amp; Intellectual Attribution</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 🤝 Mathematical Foundations, Scientific Lineage &amp; Intellectual Attribution.</td>
+</tr>
+<tr>
+  <td>14</td>
+  <td><code>📊 Summary of #1 (Gold) Records (`30` First-Place Placements)</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 📊 Summary of #1 (Gold) Records (`30` First-Place Placements).</td>
+</tr>
+<tr>
+  <td>15</td>
+  <td><code>Werr Multi-Layer Algebraic Sieve &amp; Vélu Isogeny Engine: High-Rank Elliptic Curve Records</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Werr Multi-Layer Algebraic Sieve &amp; Vélu Isogeny Engine: High-Rank Elliptic Curve Records.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>README.md</code></td><td>14 nodes</td></tr>
+<tr><td><code>ARXIV_YUKLEME_REHBERI.md</code></td><td>1 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x13, references x1. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 7. Adım 5: Künye ve Üstveri (Metadata) Girişi — Birebir Kopyala-Yapıştır ====== -->
+<h2 id="ad-m-5-k-nye-ve-stveri-metadata-giri-i-birebir-k-7fc189">7. Adım 5: Künye ve Üstveri (Metadata) Girişi — Birebir Kopyala-Yapıştır</h2>
+<p>Adım 5: Künye ve Üstveri (Metadata) Girişi — Birebir Kopyala-Yapıştır groups implementation around arxiv, yukleme, rehberimd, adım, mostly in ARXIV_YUKLEME_REHBERI.md. This section covers 14 nodes and 13 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: Adım 5: Künye ve Üstveri (Metadata) Girişi — Birebir Kopyala-Yapıştır (14 nodes, 13 edges)
+    arxiv_yukleme_rehberi_ad_m_5_k_nye_ve_stveri_met_8e0b7aaf("Adım 5: Künye ve Üstveri (Metadata) Gir...<br/><small>ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_yukleme_rehberi_arxiv_ad_m_ad_m_y_kleme_re_f6fd8587("🚀 arXiv Adım Adım Yükleme Rehberi (Werr...<br/><small>ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_yukleme_rehberi_ekran_ekran_g_nderim_ad_ml_0145cba5("🧭 Ekran Ekran Gönderim Adımları<br/><small>ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_yukleme_rehberi_1_title_makale_ba_l_fd47f654("1. Title (Makale Başlığı)<br/><small>ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_yukleme_rehberi_2_authors_yazarlar_7b62eae5("2. Authors (Yazarlar)<br/><small>ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_yukleme_rehberi_3_primary_classification_a_bc25314b("3. Primary Classification (Ana Kategori)<br/><small>ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_yukleme_rehberi_4_cross_lists_secondary_ca_d3e6fef2("4. Cross-Lists / Secondary Categories (...<br/><small>ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_yukleme_rehberi_5_abstract_zet_metni_pytho_6f69965c("5. Abstract (Özet Metni — Python len()...<br/><small>ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_yukleme_rehberi_6_comments_yorum_ek_bilgi_e4de6c7c("6. Comments (Yorum / Ek Bilgi)<br/><small>ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_yukleme_rehberi_7_report_number_rapor_numa_41843ddf("7. Report Number (Rapor Numarası)<br/><small>ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_yukleme_rehberi_8_msc_class_mathematics_su_e3831284("8. MSC-class (Mathematics Subject Class...<br/><small>ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_yukleme_rehberi_9_acm_class_acm_1998_s_n_f_92ca8a77("9. ACM-class (ACM 1998 Sınıflandırma Ko...<br/><small>ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_yukleme_rehberi_ad_m_3_dosya_y_kleme_uploa_491e156e("Adım 3: Dosya Yükleme (Upload Files)<br/><small>ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_yukleme_rehberi_g_nderilecek_dosya_ve_konu_ea0e569b("📂 Gönderilecek Dosya ve Konumu (En Temi...<br/><small>ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_yukleme_rehberi_ad_m_5_k_nye_ve_stveri_met_8e0b7aaf -->|contains| arxiv_yukleme_rehberi_1_title_makale_ba_l_fd47f654
+    arxiv_yukleme_rehberi_ad_m_5_k_nye_ve_stveri_met_8e0b7aaf -->|contains| arxiv_yukleme_rehberi_2_authors_yazarlar_7b62eae5
+    arxiv_yukleme_rehberi_ad_m_5_k_nye_ve_stveri_met_8e0b7aaf -->|contains| arxiv_yukleme_rehberi_3_primary_classification_a_bc25314b
+    arxiv_yukleme_rehberi_ad_m_5_k_nye_ve_stveri_met_8e0b7aaf -->|contains| arxiv_yukleme_rehberi_4_cross_lists_secondary_ca_d3e6fef2
+    arxiv_yukleme_rehberi_ad_m_5_k_nye_ve_stveri_met_8e0b7aaf -->|contains| arxiv_yukleme_rehberi_5_abstract_zet_metni_pytho_6f69965c
+    arxiv_yukleme_rehberi_ad_m_5_k_nye_ve_stveri_met_8e0b7aaf -->|contains| arxiv_yukleme_rehberi_6_comments_yorum_ek_bilgi_e4de6c7c
+    arxiv_yukleme_rehberi_ad_m_5_k_nye_ve_stveri_met_8e0b7aaf -->|contains| arxiv_yukleme_rehberi_7_report_number_rapor_numa_41843ddf
+    arxiv_yukleme_rehberi_ad_m_5_k_nye_ve_stveri_met_8e0b7aaf -->|contains| arxiv_yukleme_rehberi_8_msc_class_mathematics_su_e3831284
+    arxiv_yukleme_rehberi_ad_m_5_k_nye_ve_stveri_met_8e0b7aaf -->|contains| arxiv_yukleme_rehberi_9_acm_class_acm_1998_s_n_f_92ca8a77
+    arxiv_yukleme_rehberi_arxiv_ad_m_ad_m_y_kleme_re_f6fd8587 -->|contains| arxiv_yukleme_rehberi_g_nderilecek_dosya_ve_konu_ea0e569b
+    arxiv_yukleme_rehberi_arxiv_ad_m_ad_m_y_kleme_re_f6fd8587 -->|contains| arxiv_yukleme_rehberi_ekran_ekran_g_nderim_ad_ml_0145cba5
+    arxiv_yukleme_rehberi_ekran_ekran_g_nderim_ad_ml_0145cba5 -->|contains| arxiv_yukleme_rehberi_ad_m_3_dosya_y_kleme_uploa_491e156e
+    arxiv_yukleme_rehberi_ekran_ekran_g_nderim_ad_ml_0145cba5 -->|contains| arxiv_yukleme_rehberi_ad_m_5_k_nye_ve_stveri_met_8e0b7aaf
+    class arxiv_yukleme_rehberi_ad_m_5_k_nye_ve_stveri_met_8e0b7aaf concept;
+    class arxiv_yukleme_rehberi_arxiv_ad_m_ad_m_y_kleme_re_f6fd8587 concept;
+    class arxiv_yukleme_rehberi_ekran_ekran_g_nderim_ad_ml_0145cba5 concept;
+    class arxiv_yukleme_rehberi_1_title_makale_ba_l_fd47f654 concept;
+    class arxiv_yukleme_rehberi_2_authors_yazarlar_7b62eae5 concept;
+    class arxiv_yukleme_rehberi_3_primary_classification_a_bc25314b concept;
+    class arxiv_yukleme_rehberi_4_cross_lists_secondary_ca_d3e6fef2 concept;
+    class arxiv_yukleme_rehberi_5_abstract_zet_metni_pytho_6f69965c concept;
+    class arxiv_yukleme_rehberi_6_comments_yorum_ek_bilgi_e4de6c7c concept;
+    class arxiv_yukleme_rehberi_7_report_number_rapor_numa_41843ddf concept;
+    class arxiv_yukleme_rehberi_8_msc_class_mathematics_su_e3831284 concept;
+    class arxiv_yukleme_rehberi_9_acm_class_acm_1998_s_n_f_92ca8a77 concept;
+    class arxiv_yukleme_rehberi_ad_m_3_dosya_y_kleme_uploa_491e156e concept;
+    class arxiv_yukleme_rehberi_g_nderilecek_dosya_ve_konu_ea0e569b concept;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>1. Title (Makale Başlığı)</code><br><small style="color:var(--muted)">ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 1. Title (Makale Başlığı).</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><code>2. Authors (Yazarlar)</code><br><small style="color:var(--muted)">ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 2. Authors (Yazarlar).</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td><code>3. Primary Classification (Ana Kategori)</code><br><small style="color:var(--muted)">ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 3. Primary Classification (Ana Kategori).</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td><code>4. Cross-Lists / Secondary Categories (Çapraz Kategoriler)</code><br><small style="color:var(--muted)">ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 4. Cross-Lists / Secondary Categories (Çapraz Kategoriler).</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td><code>5. Abstract (Özet Metni — Python `len()` ile Doğrulanmış **1.298 Karakter** — 1.920 Sınırının 622 Karakter Altında)</code><br><small style="color:var(--muted)">ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 5. Abstract (Özet Metni — Python `len()` ile Doğrulanmış **1.298 Karakter** — 1.920 Sınırının 622 Karakter Altında).</td>
+</tr>
+<tr>
+  <td>6</td>
+  <td><code>6. Comments (Yorum / Ek Bilgi)</code><br><small style="color:var(--muted)">ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 6. Comments (Yorum / Ek Bilgi).</td>
+</tr>
+<tr>
+  <td>7</td>
+  <td><code>7. Report Number (Rapor Numarası)</code><br><small style="color:var(--muted)">ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 7. Report Number (Rapor Numarası).</td>
+</tr>
+<tr>
+  <td>8</td>
+  <td><code>8. MSC-class (Mathematics Subject Classification 2020)</code><br><small style="color:var(--muted)">ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 8. MSC-class (Mathematics Subject Classification 2020).</td>
+</tr>
+<tr>
+  <td>9</td>
+  <td><code>9. ACM-class (ACM 1998 Sınıflandırma Kodları — Noktalı Virgülle Ayrılmış)</code><br><small style="color:var(--muted)">ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 9. ACM-class (ACM 1998 Sınıflandırma Kodları — Noktalı Virgülle Ayrılmış).</td>
+</tr>
+<tr>
+  <td>10</td>
+  <td><code>Adım 3: Dosya Yükleme (Upload Files)</code><br><small style="color:var(--muted)">ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Adım 3: Dosya Yükleme (Upload Files).</td>
+</tr>
+<tr>
+  <td>11</td>
+  <td><code>Adım 5: Künye ve Üstveri (Metadata) Girişi — Birebir Kopyala-Yapıştır</code><br><small style="color:var(--muted)">ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Adım 5: Künye ve Üstveri (Metadata) Girişi — Birebir Kopyala-Yapıştır.</td>
+</tr>
+<tr>
+  <td>12</td>
+  <td><code>🚀 arXiv Adım Adım Yükleme Rehberi (Werr Multi-Layer Sieve &amp; Vélu Isogeny Engine)</code><br><small style="color:var(--muted)">ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 🚀 arXiv Adım Adım Yükleme Rehberi (Werr Multi-Layer Sieve &amp; Vélu Isogeny Engine).</td>
+</tr>
+<tr>
+  <td>13</td>
+  <td><code>🧭 Ekran Ekran Gönderim Adımları</code><br><small style="color:var(--muted)">ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 🧭 Ekran Ekran Gönderim Adımları.</td>
+</tr>
+<tr>
+  <td>14</td>
+  <td><code>📂 Gönderilecek Dosya ve Konumu (En Temiz Yöntem: Doğrudan `.tex` Dosyası)</code><br><small style="color:var(--muted)">ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 📂 Gönderilecek Dosya ve Konumu (En Temiz Yöntem: Doğrudan `.tex` Dosyası).</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>ARXIV_YUKLEME_REHBERI.md</code></td><td>14 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x13. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 8. Werr Multi-Layer Algebraic Sieve & Vélu Isogeny Engine: High-Rank Elliptic Curve Records ====== -->
+<h2 id="werr-multi-layer-algebraic-sieve-v-lu-isogeny-en-99562e">8. Werr Multi-Layer Algebraic Sieve &amp; Vélu Isogeny Engine: High-Rank Elliptic Curve Records</h2>
+<p>Werr Multi-Layer Algebraic Sieve &amp; Vélu Isogeny Engine: High-Rank Elliptic Curve Records groups implementation around readme, 2026, pre, standardizationmd, mostly in _archive/readme_history/README_2026_11_05_pre_standardization.md. This section covers 8 nodes and 7 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: Werr Multi-Layer Algebraic Sieve &amp; Vélu Isogeny Engine: High-Rank Elliptic Curve Records (8 nodes, 7 edges)
+    archive_readme_history_readme_2026_11_05_pre_sta_507e2684("Werr Multi-Layer Algebraic Sieve &amp; Vélu...<br/><small>_archive/readme_history/README_2026_11_05_pre_standardization.md</small>")
+    archive_readme_history_readme_2026_11_05_pre_sta_87ec15e2("05 pre standardization.md<br/><small>_archive/readme_history/README_2026_11_05_pre_standardization.md</small>")
+    archive_readme_history_readme_2026_11_05_pre_sta_ee5c2e9e("🏛️ Executive Summary &amp; Official Public...<br/><small>_archive/readme_history/README_2026_11_05_pre_standardization.md</small>")
+    archive_readme_history_readme_2026_11_05_pre_sta_76c3f68f("🏆 Key Official Achievements on ellipti...<br/><small>_archive/readme_history/README_2026_11_05_pre_standardization.md</small>")
+    archive_readme_history_readme_2026_11_05_pre_sta_09efb7ba("📜 Citation &amp; Permanent Record<br/><small>_archive/readme_history/README_2026_11_05_pre_standardization.md</small>")
+    archive_readme_history_readme_2026_11_05_pre_sta_030a0a9f("🤝 Mathematical Foundations, Scientific...<br/><small>_archive/readme_history/README_2026_11_05_pre_standardization.md</small>")
+    archive_readme_history_readme_2026_11_05_pre_sta_161754ac("👥 Canonical Authors &amp; Institutional Aff...<br/><small>_archive/readme_history/README_2026_11_05_pre_standardization.md</small>")
+    archive_readme_history_readme_2026_11_05_pre_sta_d1141931("📊 Summary of 1 (Gold) Records (30 Fi...<br/><small>_archive/readme_history/README_2026_11_05_pre_standardization.md</small>")
+    archive_readme_history_readme_2026_11_05_pre_sta_87ec15e2 -->|contains| archive_readme_history_readme_2026_11_05_pre_sta_507e2684
+    archive_readme_history_readme_2026_11_05_pre_sta_ee5c2e9e -->|contains| archive_readme_history_readme_2026_11_05_pre_sta_76c3f68f
+    archive_readme_history_readme_2026_11_05_pre_sta_507e2684 -->|contains| archive_readme_history_readme_2026_11_05_pre_sta_09efb7ba
+    archive_readme_history_readme_2026_11_05_pre_sta_507e2684 -->|contains| archive_readme_history_readme_2026_11_05_pre_sta_ee5c2e9e
+    archive_readme_history_readme_2026_11_05_pre_sta_507e2684 -->|contains| archive_readme_history_readme_2026_11_05_pre_sta_030a0a9f
+    archive_readme_history_readme_2026_11_05_pre_sta_507e2684 -->|contains| archive_readme_history_readme_2026_11_05_pre_sta_d1141931
+    archive_readme_history_readme_2026_11_05_pre_sta_507e2684 -->|contains| archive_readme_history_readme_2026_11_05_pre_sta_161754ac
+    class archive_readme_history_readme_2026_11_05_pre_sta_507e2684 concept;
+    class archive_readme_history_readme_2026_11_05_pre_sta_87ec15e2 concept;
+    class archive_readme_history_readme_2026_11_05_pre_sta_ee5c2e9e concept;
+    class archive_readme_history_readme_2026_11_05_pre_sta_76c3f68f concept;
+    class archive_readme_history_readme_2026_11_05_pre_sta_09efb7ba concept;
+    class archive_readme_history_readme_2026_11_05_pre_sta_030a0a9f concept;
+    class archive_readme_history_readme_2026_11_05_pre_sta_161754ac concept;
+    class archive_readme_history_readme_2026_11_05_pre_sta_d1141931 concept;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>README_2026_11_05_pre_standardization.md</code><br><small style="color:var(--muted)">_archive/readme_history/README_2026_11_05_pre_standardization.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing README_2026_11_05_pre_standardization.md.</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><code>👥 Canonical Authors &amp; Institutional Affiliations</code><br><small style="color:var(--muted)">_archive/readme_history/README_2026_11_05_pre_standardization.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 👥 Canonical Authors &amp; Institutional Affiliations.</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td><code>📜 Citation &amp; Permanent Record</code><br><small style="color:var(--muted)">_archive/readme_history/README_2026_11_05_pre_standardization.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 📜 Citation &amp; Permanent Record.</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td><code>🏛️ Executive Summary &amp; Official Public Certification</code><br><small style="color:var(--muted)">_archive/readme_history/README_2026_11_05_pre_standardization.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 🏛️ Executive Summary &amp; Official Public Certification.</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td><code>🏆 Key Official Achievements on `elliptic-rank.icarm.cloud`</code><br><small style="color:var(--muted)">_archive/readme_history/README_2026_11_05_pre_standardization.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 🏆 Key Official Achievements on `elliptic-rank.icarm.cloud`.</td>
+</tr>
+<tr>
+  <td>6</td>
+  <td><code>🤝 Mathematical Foundations, Scientific Lineage &amp; Intellectual Attribution</code><br><small style="color:var(--muted)">_archive/readme_history/README_2026_11_05_pre_standardization.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 🤝 Mathematical Foundations, Scientific Lineage &amp; Intellectual Attribution.</td>
+</tr>
+<tr>
+  <td>7</td>
+  <td><code>📊 Summary of #1 (Gold) Records (`30` First-Place Placements)</code><br><small style="color:var(--muted)">_archive/readme_history/README_2026_11_05_pre_standardization.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 📊 Summary of #1 (Gold) Records (`30` First-Place Placements).</td>
+</tr>
+<tr>
+  <td>8</td>
+  <td><code>Werr Multi-Layer Algebraic Sieve &amp; Vélu Isogeny Engine: High-Rank Elliptic Curve Records</code><br><small style="color:var(--muted)">_archive/readme_history/README_2026_11_05_pre_standardization.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Werr Multi-Layer Algebraic Sieve &amp; Vélu Isogeny Engine: High-Rank Elliptic Curve Records.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>_archive/readme_history/README_2026_11_05_pre_standardization.md</code></td><td>8 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x7. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 9. integer_roots_monic_cubic ====== -->
+<h2 id="integer-roots-monic-cubic">9. integer_roots_monic_cubic</h2>
+<p>integer_roots_monic_cubic groups implementation around scripts, velu, isogeny, enginepy, mostly in scripts/velu_isogeny_engine.py. This section covers 5 nodes and 5 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: integer_roots_monic_cubic (5 nodes, 5 edges)
+    scripts_velu_isogeny_engine_integer_roots_monic_2a6ff669("bisect_root()<br/><small>scripts/velu_isogeny_engine.py</small>")
+    scripts_velu_isogeny_engine_integer_roots_monic_d1583004("f()<br/><small>scripts/velu_isogeny_engine.py</small>")
+    scripts_velu_isogeny_engine_integer_roots_monic_06010920("df()<br/><small>scripts/velu_isogeny_engine.py</small>")
+    scripts_velu_isogeny_engine_integer_roots_monic_c15b3c76("integer_roots_monic_cubic()<br/><small>scripts/velu_isogeny_engine.py</small>")
+    scripts_velu_isogeny_engine_rationale_62_a3b4f7ba("Find exact integer roots of f(X) = X^3...<br/><small>scripts/velu_isogeny_engine.py</small>")
+    scripts_velu_isogeny_engine_integer_roots_monic_2a6ff669 -->|calls| scripts_velu_isogeny_engine_integer_roots_monic_d1583004
+    class scripts_velu_isogeny_engine_integer_roots_monic_2a6ff669 function;
+    class scripts_velu_isogeny_engine_integer_roots_monic_d1583004 function;
+    class scripts_velu_isogeny_engine_integer_roots_monic_06010920 function;
+    class scripts_velu_isogeny_engine_integer_roots_monic_c15b3c76 function;
+    class scripts_velu_isogeny_engine_rationale_62_a3b4f7ba concept;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>integer_roots_monic_cubic()</code><br><small style="color:var(--muted)">scripts/velu_isogeny_engine.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>math</code></td>
+  <td>integer_roots_monic_cubic() node in scripts/velu_isogeny_engine.py.</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><code>bisect_root()</code><br><small style="color:var(--muted)">scripts/velu_isogeny_engine.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>f()</code><br><small style="color:var(--muted)">scripts/velu_isogeny_engine.py</small></td>
+  <td>bisect_root() node in scripts/velu_isogeny_engine.py.</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td><code>df()</code><br><small style="color:var(--muted)">scripts/velu_isogeny_engine.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>df() node in scripts/velu_isogeny_engine.py.</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td><code>f()</code><br><small style="color:var(--muted)">scripts/velu_isogeny_engine.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>bisect_root()</code><br><small style="color:var(--muted)">scripts/velu_isogeny_engine.py</small></td>
+  <td>No direct outbound edge</td>
+  <td>f() node in scripts/velu_isogeny_engine.py.</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td><code>Find exact integer roots of f(X) = X^3 + B2*X^2 + B4*X + B6 = 0 using exact…</code><br><small style="color:var(--muted)">scripts/velu_isogeny_engine.py</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Design note for Find exact integer roots of f(X) = X^3 + B2*X^2 + B4*X + B6 = 0 using exact….</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>scripts/velu_isogeny_engine.py</code></td><td>5 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x3, calls x1, explains x1. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<h2 id="stats">Project Statistics</h2>
+
+<div class="grid">
+  <div class="card">
+    <h4>Graph</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><td>Nodes</td><td>109</td></tr>
+      <tr><td>Edges</td><td>119</td></tr>
+      <tr><td>Hyperedges</td><td>0</td></tr>
+      <tr><td>Communities</td><td>8</td></tr>
+      <tr><td>Documented Sections</td><td>8</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Edge Confidence</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><td>EXTRACTED</td><td>118</td></tr>
+      <tr><td>INFERRED</td><td>1</td></tr>
+      <tr><td>AMBIGUOUS</td><td>0</td></tr>
+    </table>
+  </div>
+</div>
+
+<div style="text-align:center; padding:40px 0; color: var(--muted); font-size:0.9rem;">
+  <p>werr-elliptic-sieve — Architecture Documentation</p>
+  <p>Generated: 2026-11-25 00:17 UTC · graphify callflow-html</p>
+</div>
+
+</div><!-- .container -->
+
+<script>
+(function () {
+  const mermaidConfig = {
+    startOnLoad: false,
+    theme: 'dark',
+    securityLevel: 'loose',
+    flowchart: { htmlLabels: true, useMaxWidth: true },
+    themeVariables: {
+      primaryColor: '#1e293b',
+      primaryTextColor: '#e2e8f0',
+      primaryBorderColor: '#38bdf8',
+      secondaryColor: '#0f172a',
+      tertiaryColor: '#334155',
+      lineColor: '#64748b',
+      textColor: '#e2e8f0',
+    }
+  };
+
+  mermaid.initialize(mermaidConfig);
+
+  function clamp(value, min, max) {
+    return Math.min(max, Math.max(min, value));
+  }
+
+  function enhanceMermaidDiagrams() {
+    document.querySelectorAll('.mermaid').forEach((container) => {
+      if (container.dataset.zoomReady === 'true') return;
+      const svg = container.querySelector('svg');
+      if (!svg) return;
+
+      container.dataset.zoomReady = 'true';
+      container.classList.add('is-enhanced');
+
+      const viewport = document.createElement('div');
+      viewport.className = 'mermaid-viewport';
+      svg.parentNode.insertBefore(viewport, svg);
+      viewport.appendChild(svg);
+
+      const toolbar = document.createElement('div');
+      toolbar.className = 'mermaid-toolbar';
+      toolbar.innerHTML = [
+        '<button type="button" data-action="zoom-out" title="Zoom out">-</button>',
+        '<span class="zoom-level" data-role="level">100%</span>',
+        '<button type="button" data-action="zoom-in" title="Zoom in">+</button>',
+        '<button type="button" data-action="fit" title="Fit width">Fit</button>',
+        '<button type="button" data-action="reset" title="Reset view">Reset</button>'
+      ].join('');
+      container.insertBefore(toolbar, viewport);
+
+      const state = { scale: 1, x: 0, y: 0, dragging: false, startX: 0, startY: 0, originX: 0, originY: 0 };
+      const level = toolbar.querySelector('[data-role="level"]');
+
+      function applyTransform() {
+        svg.style.transform = `translate(${state.x}px, ${state.y}px) scale(${state.scale})`;
+        level.textContent = `${Math.round(state.scale * 100)}%`;
+      }
+
+      function zoomBy(delta) {
+        state.scale = clamp(state.scale + delta, 0.25, 3);
+        applyTransform();
+      }
+
+      function reset() {
+        state.scale = 1;
+        state.x = 0;
+        state.y = 0;
+        applyTransform();
+      }
+
+      function fitWidth() {
+        const rawWidth = svg.viewBox && svg.viewBox.baseVal && svg.viewBox.baseVal.width
+          ? svg.viewBox.baseVal.width
+          : svg.getBoundingClientRect().width / state.scale;
+        if (!rawWidth) {
+          reset();
+          return;
+        }
+        state.scale = clamp((viewport.clientWidth - 48) / rawWidth, 0.25, 1.4);
+        state.x = 0;
+        state.y = 0;
+        applyTransform();
+      }
+
+      toolbar.addEventListener('click', (event) => {
+        const button = event.target.closest('button[data-action]');
+        if (!button) return;
+        const action = button.dataset.action;
+        if (action === 'zoom-in') zoomBy(0.15);
+        if (action === 'zoom-out') zoomBy(-0.15);
+        if (action === 'fit') fitWidth();
+        if (action === 'reset') reset();
+      });
+
+      viewport.addEventListener('wheel', (event) => {
+        if (!event.ctrlKey && !event.metaKey) return;
+        event.preventDefault();
+        zoomBy(event.deltaY < 0 ? 0.1 : -0.1);
+      }, { passive: false });
+
+      viewport.addEventListener('pointerdown', (event) => {
+        if (event.button !== 0) return;
+        state.dragging = true;
+        state.startX = event.clientX;
+        state.startY = event.clientY;
+        state.originX = state.x;
+        state.originY = state.y;
+        viewport.classList.add('is-dragging');
+        viewport.setPointerCapture(event.pointerId);
+      });
+
+      viewport.addEventListener('pointermove', (event) => {
+        if (!state.dragging) return;
+        state.x = state.originX + event.clientX - state.startX;
+        state.y = state.originY + event.clientY - state.startY;
+        applyTransform();
+      });
+
+      function endDrag(event) {
+        if (!state.dragging) return;
+        state.dragging = false;
+        viewport.classList.remove('is-dragging');
+        if (viewport.hasPointerCapture(event.pointerId)) {
+          viewport.releasePointerCapture(event.pointerId);
+        }
+      }
+
+      viewport.addEventListener('pointerup', endDrag);
+      viewport.addEventListener('pointercancel', endDrag);
+      applyTransform();
+    });
+  }
+
+  function renderMermaid() {
+    const result = mermaid.run
+      ? mermaid.run({ querySelector: '.mermaid' })
+      : Promise.resolve();
+    Promise.resolve(result)
+      .then(enhanceMermaidDiagrams)
+      .catch((error) => {
+        console.error('Mermaid render failed:', error);
+        enhanceMermaidDiagrams();
+      });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', renderMermaid);
+  } else {
+    renderMermaid();
+  }
+})();
+</script>
+
+</body>
+</html>
